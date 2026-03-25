@@ -26,9 +26,21 @@ async function getAIResponse(prompt) {
             },
             body: JSON.stringify({ prompt: prompt })
         });
+
+        // 🔥 FIX: response ok check add kiya (baaki sab same)
+        if (!response.ok) {
+            return "Server Error: " + response.status;
+        }
         
         const data = await response.json();
-        return data.text || "AI response error.";
+
+        // 🔥 FIX: safe return
+        if (!data || !data.text) {
+            return "⚠️ AI response missing. Check backend.";
+        }
+
+        return data.text;
+
     } catch (error) {
         console.error("Fetch Error:", error);
         return "Network Error: Check console for details.";
