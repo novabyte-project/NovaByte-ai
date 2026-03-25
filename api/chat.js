@@ -1,14 +1,24 @@
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
-        return res.status(405).end();
+        return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
-    const { prompt } = req.body;
-    const API_KEY = process.env.API_KEY;
+    // Extracting user input from request body
+    const { prompt, message } = req.body;
+    const userInput = prompt || message;
+
+    // Accessing the Environment Variable from Vercel
+    const API_KEY = process.env.GEMINI_API_KEY;
+
+    if (!API_KEY) {
+        return res.status(500).json({ 
+            text: "Backend Error: GEMINI_API_KEY is not defined in Vercel Environment Variables." 
+        });
+    }
 
     try {
         const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${API_KEY}`,
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
             {
                 method: "POST",
                 headers: {
@@ -17,7 +27,7 @@ export default async function handler(req, res) {
                 body: JSON.stringify({
                     contents: [
                         {
-                            parts: [{ text: prompt }]
+                            parts: [{ text: userInput }]
                         }
                     ]
                 })
@@ -26,19 +36,31 @@ export default async function handler(req, res) {
 
         const data = await response.json();
 
-        if (!data.candidates || data.candidates.length === 0) {
-            return res.status(200).json({
-                text: "⚠️ No response from AI. Check API key or quota."
+        // Handle Google API specific errors (Quota, Invalid Key, etc.)
+        if (data.error) {
+            return res.status(400).json({ 
+                text: "Google API Error: " + data.error.message 
             });
         }
 
-        const aiText = data.candidates[0].content.parts[0].text;
+        // Check if response contains valid content
+        if (!data.candidates || data.candidates.length === 0) {
+            return res.status(200).json({
+                text: "⚠️ No response from AI. Please check your API quota or model settings."
+            });
+        }
 
-        return res.status(200).json({ text: aiText });
+        const aiResponseText = data.candidates[0].content.parts[0].text;
+
+        // Sending back both 'text' and 'reply' keys to ensure frontend compatibility
+        return res.status(200).json({ 
+            text: aiResponseText,
+            reply: aiResponseText 
+        });
 
     } catch (error) {
         return res.status(500).json({
-            text: "Backend Error: " + error.message
+            text: "Server Error: " + error.message
         });
     }
 }
