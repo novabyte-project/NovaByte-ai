@@ -4,23 +4,23 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
-    // 2. Extract user input (Handling both 'prompt' and 'message' keys)
+    // 2. Extract user input
     const { prompt, message } = req.body;
-    const userInput = prompt || message;
+    const userInput = prompt || message || "Hello";
 
-    // 3. Get API Key from Vercel Environment Variables
+    // 3. Get API Key from Vercel
     const API_KEY = process.env.GEMINI_API_KEY;
 
     if (!API_KEY) {
         return res.status(500).json({ 
-            text: "Configuration Error: GEMINI_API_KEY is missing in Vercel Settings." 
+            text: "Backend Error: GEMINI_API_KEY is missing in Vercel Settings." 
         });
     }
 
     try {
-        // 4. Calling the Gemini 1.5 Flash API with the 'latest' tag for better compatibility
+        // 4. Using v1 (STABLE) instead of v1beta
         const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`,
+            `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
             {
                 method: "POST",
                 headers: {
@@ -38,23 +38,23 @@ export default async function handler(req, res) {
 
         const data = await response.json();
 
-        // 5. Catching Specific Google Errors
+        // 5. Catch Google API specific errors
         if (data.error) {
             return res.status(400).json({ 
                 text: "Google API Error: " + data.error.message 
             });
         }
 
-        // 6. Check if response is valid
+        // 6. Check for valid AI response
         if (!data.candidates || data.candidates.length === 0) {
             return res.status(200).json({
-                text: "⚠️ No response from AI. Please check your API quota."
+                text: "⚠️ AI is not responding. Check your API quota."
             });
         }
 
         const aiResponseText = data.candidates[0].content.parts[0].text;
 
-        // 7. Final Success Response
+        // 7. Send back results
         return res.status(200).json({ 
             text: aiResponseText,
             reply: aiResponseText 
