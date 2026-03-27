@@ -2,7 +2,6 @@ export default async function handler(req, res) {
     const HF_TOKEN = process.env.HF_TOKEN;
     const userInput = req.body.prompt || req.body.message || "Hello";
 
-    // NEW ROUTER URL as required by Hugging Face update
     const MODEL_URL = "https://router.huggingface.co/hf-inference/models/mistralai/Mistral-7B-Instruct-v0.3";
 
     try {
@@ -23,7 +22,7 @@ export default async function handler(req, res) {
 
         const data = await response.json();
 
-        // Check if the model is still loading/starting up
+        // 🔥 Handle loading state
         if (data.error && data.error.includes("currently loading")) {
             return res.status(503).json({ 
                 text: "AI is warming up... please wait 10 seconds and try again.",
@@ -31,19 +30,30 @@ export default async function handler(req, res) {
             });
         }
 
+        // 🔥 Handle API error
         if (data.error) {
-            return res.status(400).json({ text: "API Error: " + data.error });
+            return res.status(400).json({ 
+                text: "API Error: " + data.error 
+            });
         }
 
-        // Handle successful response
-        const aiText = data[0].generated_text;
-        
+        // 🔥 SAFE extraction (no crash)
+        let aiText = "";
+
+        if (Array.isArray(data) && data[0]?.generated_text) {
+            aiText = data[0].generated_text;
+        } else {
+            aiText = "⚠️ No response from AI.";
+        }
+
         return res.status(200).json({ 
-            text: aiText, 
+            text: aiText,
             reply: aiText 
         });
 
     } catch (error) {
-        return res.status(500).json({ text: "Server Connection Error: " + error.message });
+        return res.status(500).json({ 
+            text: "Server Connection Error: " + error.message 
+        });
     }
 }
