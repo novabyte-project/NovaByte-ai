@@ -1,34 +1,48 @@
 export default async function handler(req, res) {
-    const API_KEY = process.env.GEMINI_API_KEY;
+    const HF_TOKEN = process.env.HF_TOKEN;
     const userInput = req.body.prompt || req.body.message || "Hello";
 
+    // Using Mistral 7B - Extremely stable and fast
+    const MODEL_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.3";
+
     try {
-        // Using 'gemini-pro' with 'v1' for maximum stability
-        const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${API_KEY}`,
-            {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: String(userInput) }] }]
-                })
-            }
-        );
+        const response = await fetch(MODEL_URL, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${HF_TOKEN}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                inputs: userInput,
+                parameters: { 
+                    max_new_tokens: 500, 
+                    return_full_text: false 
+                }
+            }),
+        });
 
         const data = await response.json();
 
-        // Handle API Errors
+        // If the model is loading, Hugging Face returns an 'estimated_time'
+        if (data.error && data.error.includes("currently loading")) {
+            return res.status(503).json({ 
+                text: "Model is starting up... please wait 10 seconds and try again.",
+                error: data.error 
+            });
+        }
+
         if (data.error) {
-            return res.status(400).json({ text: "API Error: " + data.error.message });
+            return res.status(400).json({ text: "API Error: " + data.error });
         }
 
-        // Validate Response
-        if (!data.candidates || data.candidates.length === 0) {
-            return res.status(500).json({ text: "AI generated an empty response. Please try again." });
-        }
-
-        const aiText = data.candidates[0].content.parts[0].text;
-        return res.status(200).json({ text: aiText, reply: aiText });
+        // Response handling for Hugging Face array format
+        const aiText = data[0].generated_text;
+        
+        // Return response in the format your frontend expects
+        return res.status(200).json({ 
+            text: aiText, 
+            reply: aiText 
+        });
 
     } catch (error) {
         return res.status(500).json({ text: "Server Connection Error: " + error.message });
