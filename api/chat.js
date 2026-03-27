@@ -2,8 +2,8 @@ export default async function handler(req, res) {
     const HF_TOKEN = process.env.HF_TOKEN;
     const userInput = req.body.prompt || req.body.message || "Hello";
 
-    // Using Mistral 7B - Extremely stable and fast
-    const MODEL_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.3";
+    // NEW ROUTER URL as required by Hugging Face update
+    const MODEL_URL = "https://router.huggingface.co/hf-inference/models/mistralai/Mistral-7B-Instruct-v0.3";
 
     try {
         const response = await fetch(MODEL_URL, {
@@ -23,10 +23,10 @@ export default async function handler(req, res) {
 
         const data = await response.json();
 
-        // If the model is loading, Hugging Face returns an 'estimated_time'
+        // Check if the model is still loading/starting up
         if (data.error && data.error.includes("currently loading")) {
             return res.status(503).json({ 
-                text: "Model is starting up... please wait 10 seconds and try again.",
+                text: "AI is warming up... please wait 10 seconds and try again.",
                 error: data.error 
             });
         }
@@ -35,10 +35,9 @@ export default async function handler(req, res) {
             return res.status(400).json({ text: "API Error: " + data.error });
         }
 
-        // Response handling for Hugging Face array format
+        // Handle successful response
         const aiText = data[0].generated_text;
         
-        // Return response in the format your frontend expects
         return res.status(200).json({ 
             text: aiText, 
             reply: aiText 
