@@ -18,11 +18,11 @@ export default async function handler(req, res) {
       body: JSON.stringify({ inputs: req.body.prompt || "Hello" }),
     });
 
-    // Parse JSON response safely
+    // Safely parse JSON response
     const data = await response.json();
     res.status(200).json(data);
   } catch (err) {
     console.error("API ERROR:", err);
-    res.status(500).json({ error: "Server Connection Error. Check your HF_TOKEN and model URL." });
+    res.status(500).json({ error: "Server Connection Error. Check HF_TOKEN and model URL." });
   }
 }
