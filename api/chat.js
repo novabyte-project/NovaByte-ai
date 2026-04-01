@@ -1,4 +1,3 @@
-// /api/chat.js
 export default async function handler(req, res) {
   // Only allow POST requests
   if (req.method !== "POST") {
@@ -9,7 +8,7 @@ export default async function handler(req, res) {
     const { message } = req.body;
 
     // Validate input
-    if (!message) {
+    if (!message || !message.trim()) {
       return res.status(400).json({ error: "Message is required" });
     }
 
@@ -28,13 +27,22 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
-    // Extract the AI reply
-    const reply = data[0]?.generated_text || "AI response is empty, please try again";
+    // 🔹 Safe extraction: handle different response shapes
+    let reply = "AI response is empty, please try again";
+
+    if (Array.isArray(data) && data[0]?.generated_text) {
+      reply = data[0].generated_text;
+    } else if (data.generated_text) {
+      reply = data.generated_text;
+    } else if (data.error) {
+      reply = "HF API Error: " + data.error;
+    }
 
     // Send response back to client
     res.status(200).json({ reply });
+
   } catch (error) {
-    console.error(error);
+    console.error("Chat API Error:", error);
     res.status(500).json({ error: "Failed to fetch AI response" });
   }
 }
