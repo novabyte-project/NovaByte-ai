@@ -24,7 +24,8 @@ async function getAIResponse(userPrompt) {
             headers: { 
                 "Content-Type": "application/json" 
             },
-            body: JSON.stringify({ prompt: userPrompt })
+            // ✅ FIXED: prompt → message
+            body: JSON.stringify({ message: userPrompt })
         });
 
         if (!response.ok) {
@@ -34,7 +35,7 @@ async function getAIResponse(userPrompt) {
         
         const data = await response.json();
 
-        // 🔥 FIX: Backend can send 'text' or 'reply'. This checks both.
+        // 🔥 Backend can send 'text' or 'reply'. This checks both.
         const aiText = data.text || data.reply || data.botReply;
 
         if (!aiText) {
