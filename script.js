@@ -5,7 +5,7 @@ const studentMapping = {
     college: ["College Level"] 
 };
 
-// Vercel API Route
+// Updated to point to your new backend
 const API_URL = "/api/chat"; 
 
 // --- DOM ELEMENTS ---
@@ -17,53 +17,36 @@ const modal = document.getElementById('previewModal');
 const modalText = document.getElementById('modalText'); 
 
 // --- AI QUERY FUNCTION ---
-async function getAIResponse(userPrompt) {
+async function getAIResponse(prompt) {
     try {
         const response = await fetch(API_URL, {
             method: "POST",
             headers: { 
                 "Content-Type": "application/json" 
             },
-            body: JSON.stringify({ prompt: userPrompt })
+            body: JSON.stringify({ prompt: prompt })
         });
-
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            return "Server Error (" + response.status + "): " + (errorData.text || "Check Vercel Logs");
-        }
         
         const data = await response.json();
-
-        // 🔥 FIX: Backend can send 'text' or 'reply'. This checks both.
-        const aiText = data.text || data.reply || data.botReply;
-
-        if (!aiText) {
-            return "⚠️ AI response is empty. Please try again.";
-        }
-
-        return aiText;
-
+        return data.text || "AI response error.";
     } catch (error) {
         console.error("Fetch Error:", error);
-        return "Network Error: Please check your internet or Vercel deployment.";
+        return "Network Error: Check console for details.";
     }
 }
 
-// --- REFRESH CLASSES LOGIC ---
+// --- LOGIC ---
 function refreshClasses() {
-    const selectedCategory = category.value;
-    const items = studentMapping[selectedCategory] || [];
+    const items = studentMapping[category.value];
     classList.innerHTML = items.map(item => `<option value="${item}">${item}</option>`).join('');
 }
 
 category.addEventListener('change', refreshClasses);
 window.onload = refreshClasses;
 
-// --- PREVIEW MODAL LOGIC ---
 document.getElementById('previewBtn').onclick = () => {
-    if(notes.value.trim() === "") {
-        alert("Please paste some notes first!");
-    } else { 
+    if(notes.value.trim() === "") alert("Please paste some notes first!");
+    else { 
         modalText.value = notes.value;
         modal.style.display = "block"; 
     }
@@ -74,33 +57,22 @@ document.getElementById('closeModal').onclick = () => {
     modal.style.display = "none";
 };
 
-// --- API ACTION BUTTONS ---
-
-// 1. Simplify Button
+// --- API Buttons ---
 document.getElementById('btnSimplify').onclick = async () => {
-    const noteContent = notes.value.trim();
-    if(!noteContent) return alert("Please enter notes!");
-    
-    result.innerText = "Simplifying notes for " + classList.value + "...";
-    
-    const output = await getAIResponse("Simplify these notes for " + classList.value + ": " + noteContent);
-    result.innerHTML = `<h3 style="color:var(--teal)">Simplified by Novabyte AI</h3><p>${output.replace(/\n/g, '<br>')}</p>`;
+    if(!notes.value.trim()) return alert("Please enter notes!");
+    result.innerText = "Simplifying notes...";
+    const output = await getAIResponse("Simplify these notes for " + classList.value + ": " + notes.value);
+    result.innerHTML = `<h3 style="color:var(--teal)">Simplified by Novabyte AI</h3><p>${output}</p>`;
 };
 
-// 2. Questions Button
 document.getElementById('btnQuestions').onclick = async () => {
-    const noteContent = notes.value.trim();
-    if(!noteContent) return alert("Please enter notes!");
-    
-    result.innerText = "Generating practice questions...";
-    
-    const output = await getAIResponse("Create 5 practice questions for " + classList.value + " based on these notes: " + noteContent);
-    result.innerHTML = `<h3 style="color:var(--orange)">AI Generated Questions</h3><p>${output.replace(/\n/g, '<br>')}</p>`;
+    if(!notes.value.trim()) return alert("Please enter notes!");
+    result.innerText = "Generating questions...";
+    const output = await getAIResponse("Create 5 practice questions for " + classList.value + " based on: " + notes.value);
+    result.innerHTML = `<h3 style="color:var(--orange)">AI Generated Questions</h3><p>${output}</p>`;
 };
 
-// 3. Copy Button
 document.getElementById('btnCopy').onclick = () => {
-    if(!result.innerText || result.innerText.includes("Simplifying")) return;
     navigator.clipboard.writeText(result.innerText);
-    alert("Result copied to clipboard!");
+    alert("Result copied!");
 };
