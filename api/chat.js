@@ -16,8 +16,8 @@ export default async function handler(req, res) {
     let reply = null;
     let attempts = 0;
 
-    // Retry loop for model loading (permanent fix)
-    while (!reply && attempts < 5) {
+    // Retry loop (max 10 times, 4 sec wait)
+    while (!reply && attempts < 10) {
       const response = await fetch(endpoint, {
         method: "POST",
         headers,
@@ -37,14 +37,15 @@ export default async function handler(req, res) {
         reply = data[0].generated_text;
         break;
       } else if (data?.error?.includes("Model is loading")) {
-        // Model still loading, wait 2 seconds then retry
         attempts++;
-        await new Promise(r => setTimeout(r, 2000));
+        await new Promise(r => setTimeout(r, 4000)); // wait 4 sec
       } else {
-        reply = "No output from AI";
-        break;
+        attempts++;
+        await new Promise(r => setTimeout(r, 2000)); // minor wait before retry
       }
     }
+
+    if (!reply) reply = "AI could not generate a response at this time";
 
     return res.status(200).json({ reply });
 
