@@ -7,14 +7,16 @@ export default async function handler(req, res) {
     const { message } = req.body;
 
     const response = await fetch(
-      "https://router.huggingface.co/hf-inference/models/google/flan-t5-base",
+      "https://router.huggingface.co/hf-inference/models/HuggingFaceH4/zephyr-7b-beta",
       {
         method: "POST",
         headers: {
           Authorization: `Bearer ${process.env.HF_API_KEY}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ inputs: message }),
+        body: JSON.stringify({
+          inputs: message,
+        }),
       }
     );
 
