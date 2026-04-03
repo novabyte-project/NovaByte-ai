@@ -5,7 +5,7 @@ const studentMapping = {
     college: ["College Level"] 
 };
 
-// Updated to point to your new backend
+// Backend API
 const API_URL = "/api/chat"; 
 
 // --- DOM ELEMENTS ---
@@ -16,7 +16,7 @@ const result = document.getElementById('resultBox');
 const modal = document.getElementById('previewModal');
 const modalText = document.getElementById('modalText'); 
 
-// --- AI QUERY FUNCTION ---
+// --- AI QUERY FUNCTION (FINAL FIXED) ---
 async function getAIResponse(prompt) {
     try {
         const response = await fetch(API_URL, {
@@ -24,14 +24,25 @@ async function getAIResponse(prompt) {
             headers: { 
                 "Content-Type": "application/json" 
             },
-            body: JSON.stringify({ prompt: prompt })
+            body: JSON.stringify({ message: prompt })
         });
+
+        // Handle bad responses
+        if (!response.ok) {
+            throw new Error("Server error: " + response.status);
+        }
         
         const data = await response.json();
-        return data.text || "AI response error.";
+
+        if (data.reply) {
+            return data.reply;
+        } else {
+            return "AI did not return a proper response.";
+        }
+
     } catch (error) {
         console.error("Fetch Error:", error);
-        return "Network Error: Check console for details.";
+        return "Error ❌: " + error.message;
     }
 }
 
@@ -44,6 +55,7 @@ function refreshClasses() {
 category.addEventListener('change', refreshClasses);
 window.onload = refreshClasses;
 
+// --- PREVIEW MODAL ---
 document.getElementById('previewBtn').onclick = () => {
     if(notes.value.trim() === "") alert("Please paste some notes first!");
     else { 
@@ -57,21 +69,39 @@ document.getElementById('closeModal').onclick = () => {
     modal.style.display = "none";
 };
 
-// --- API Buttons ---
+// --- SIMPLIFY BUTTON ---
 document.getElementById('btnSimplify').onclick = async () => {
     if(!notes.value.trim()) return alert("Please enter notes!");
-    result.innerText = "Simplifying notes...";
-    const output = await getAIResponse("Simplify these notes for " + classList.value + ": " + notes.value);
-    result.innerHTML = `<h3 style="color:var(--teal)">Simplified by Novabyte AI</h3><p>${output}</p>`;
+
+    result.innerText = "Simplifying notes... ⏳";
+
+    const output = await getAIResponse(
+        `Simplify these notes for ${classList.value}: ${notes.value}`
+    );
+
+    result.innerHTML = `
+        <h3 style="color:var(--teal)">Simplified by Novabyte AI</h3>
+        <p>${output}</p>
+    `;
 };
 
+// --- QUESTIONS BUTTON ---
 document.getElementById('btnQuestions').onclick = async () => {
     if(!notes.value.trim()) return alert("Please enter notes!");
-    result.innerText = "Generating questions...";
-    const output = await getAIResponse("Create 5 practice questions for " + classList.value + " based on: " + notes.value);
-    result.innerHTML = `<h3 style="color:var(--orange)">AI Generated Questions</h3><p>${output}</p>`;
+
+    result.innerText = "Generating questions... ⏳";
+
+    const output = await getAIResponse(
+        `Create 5 practice questions for ${classList.value} based on: ${notes.value}`
+    );
+
+    result.innerHTML = `
+        <h3 style="color:var(--orange)">AI Generated Questions</h3>
+        <p>${output}</p>
+    `;
 };
 
+// --- COPY BUTTON ---
 document.getElementById('btnCopy').onclick = () => {
     navigator.clipboard.writeText(result.innerText);
     alert("Result copied!");
