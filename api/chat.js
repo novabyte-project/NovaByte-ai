@@ -1,44 +1,51 @@
 export default async function handler(req, res) {
   try {
-    // Only allow POST requests
     if (req.method !== "POST") {
       return res.status(405).json({ reply: "Only POST requests allowed" });
     }
 
     const { message } = req.body;
+    if (!message) return res.status(400).json({ reply: "No message provided" });
 
-    if (!message) {
-      return res.status(400).json({ reply: "No message provided" });
-    }
+    const endpoint = "https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta";
+    const headers = {
+      Authorization: `Bearer ${process.env.HF_API_KEY}`,
+      "Content-Type": "application/json",
+    };
 
-    // Call the correct Hugging Face Inference API
-    const response = await fetch(
-      "https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta",
-      {
+    let reply = null;
+    let attempts = 0;
+
+    // Retry loop for model loading (permanent fix)
+    while (!reply && attempts < 5) {
+      const response = await fetch(endpoint, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.HF_API_KEY}`, // Must match Vercel env variable
-          "Content-Type": "application/json",
-        },
+        headers,
         body: JSON.stringify({ inputs: message }),
+      });
+
+      const text = await response.text();
+      let data;
+
+      try {
+        data = JSON.parse(text);
+      } catch {
+        return res.status(200).json({ reply: "HF Error: " + text });
       }
-    );
 
-    // Read response text
-    const text = await response.text();
-
-    // Check if response is valid JSON
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch {
-      return res.status(200).json({ reply: "HF Error: " + text });
+      if (Array.isArray(data) && data[0]?.generated_text) {
+        reply = data[0].generated_text;
+        break;
+      } else if (data?.error?.includes("Model is loading")) {
+        // Model still loading, wait 2 seconds then retry
+        attempts++;
+        await new Promise(r => setTimeout(r, 2000));
+      } else {
+        reply = "No output from AI";
+        break;
+      }
     }
 
-    // Extract generated text
-    const reply = Array.isArray(data) ? data[0]?.generated_text || "No output" : "No response";
-
-    // Return reply to frontend
     return res.status(200).json({ reply });
 
   } catch (error) {
