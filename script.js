@@ -27,18 +27,14 @@ async function getAIResponse(prompt) {
             body: JSON.stringify({ message: prompt })
         });
 
-        // Handle bad responses
         if (!response.ok) {
-            throw new Error("Server error: " + response.status);
+            return "Server error: " + response.status;
         }
         
         const data = await response.json();
 
-        if (data.reply) {
-            return data.reply;
-        } else {
-            return "AI did not return a proper response.";
-        }
+        // ✅ ONLY BACKEND FIX (UI untouched)
+        return data.reply || "AI did not return a proper response.";
 
     } catch (error) {
         console.error("Fetch Error:", error);
