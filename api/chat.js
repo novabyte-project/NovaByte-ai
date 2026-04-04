@@ -5,47 +5,35 @@ export default async function handler(req, res) {
     }
 
     const { message } = req.body;
-    if (!message) return res.status(400).json({ reply: "No message provided" });
-
-    const endpoint = "https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta";
-    const headers = {
-      Authorization: `Bearer ${process.env.HF_API_KEY}`,
-      "Content-Type": "application/json",
-    };
-
-    let reply = null;
-    let attempts = 0;
-
-    // Retry loop (max 10 times, 4 sec wait)
-    while (!reply && attempts < 10) {
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({ inputs: message }),
-      });
-
-      const text = await response.text();
-      let data;
-
-      try {
-        data = JSON.parse(text);
-      } catch {
-        return res.status(200).json({ reply: "HF Error: " + text });
-      }
-
-      if (Array.isArray(data) && data[0]?.generated_text) {
-        reply = data[0].generated_text;
-        break;
-      } else if (data?.error?.includes("Model is loading")) {
-        attempts++;
-        await new Promise(r => setTimeout(r, 4000)); // wait 4 sec
-      } else {
-        attempts++;
-        await new Promise(r => setTimeout(r, 2000)); // minor wait before retry
-      }
+    if (!message) {
+      return res.status(400).json({ reply: "No message provided" });
     }
 
-    if (!reply) reply = "AI could not generate a response at this time";
+    const endpoint = "https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta";
+
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.HF_API_KEY}`, // ✅ tumhara same variable
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        inputs: `<|user|>\n${message}\n<|assistant|>` // ✅ FIXED FORMAT
+      }),
+    });
+
+    const data = await response.json();
+
+    let reply = data?.[0]?.generated_text || "";
+
+    // ✅ Clean output
+    if (reply.includes("<|assistant|>")) {
+      reply = reply.split("<|assistant|>")[1].trim();
+    }
+
+    if (!reply) {
+      reply = "AI could not generate a response at this time";
+    }
 
     return res.status(200).json({ reply });
 
