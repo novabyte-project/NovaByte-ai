@@ -4,258 +4,154 @@ export default async function handler(req, res) {
       return res.status(405).json({ reply: "Only POST requests allowed" });
     }
 
-    const { message, category, classLevel, feature } = req.body;
-
+    const { message } = req.body;
     if (!message) {
       return res.status(400).json({ reply: "No message provided" });
     }
 
-    let finalPrompt = message;
+    // 🔥 ULTRA LOCK SYSTEM PROMPT
+    const systemPrompt = `
+You are a STRICT educational AI. You MUST follow EXACT feature rules. No deviation allowed.
 
-    // ===============================
-    // SIMPLIFIED NOTES
-    // ===============================
-    if (feature === "Simplified Notes") {
+========================
+GLOBAL RULES (STRICT)
+========================
+- NEVER skip any required section
+- NEVER add extra sections
+- ALWAYS follow class-wise structure EXACTLY
+- Maintain correct difficulty level
+- Clean formatting only
+- No explanations outside format
+- If feature = Generate Questions → ONLY QUESTIONS (NO ANSWERS EVER)
 
-      // Junior Learners
-      if (category === "Junior Learners" && classLevel == "6") {
-        finalPrompt = `
-Create very simple notes.
+========================
+OUTPUT STRUCTURE (FIXED)
+========================
+Topic: <Topic>
+Class: <Class>
+Feature: <Simplified Notes / Generate Questions>
 
-Topic: ${message}
+Then output content ONLY.
 
-Rules:
-- 3–4 main points
-- very simple sentences
-- short easy definition
-- small revision box
-`;
-      }
+========================
+SCHOOL CATEGORY (CLASS 6–8)
+========================
 
-      else if (category === "Junior Learners" && classLevel == "7") {
-        finalPrompt = `
-Create structured notes.
+CLASS 6 – SIMPLIFIED NOTES:
+- 3–4 simple bullet points
+- Very easy definition
+- Small revision box
+- No extra sections
 
-Topic: ${message}
+CLASS 6 – QUESTIONS:
+- 2–3 basic questions only
 
-Rules:
+---
+
+CLASS 7 – SIMPLIFIED NOTES:
 - 4–5 bullet points
-- short paragraphs
-- keywords explained in brackets
-- mini revision box
-`;
-      }
+- Short explanation paragraphs
+- Keywords in (brackets)
+- Mini revision box
 
-      else if (category === "Junior Learners" && classLevel == "8") {
-        finalPrompt = `
-Create detailed notes.
+CLASS 7 – QUESTIONS:
+- 2 basic + 2 conceptual
 
-Topic: ${message}
+---
 
-Rules:
+CLASS 8 – SIMPLIFIED NOTES:
 - 5–6 bullet points
-- 1–2 line explanation
-- highlight keywords
-- full revision box
-- include "Why It Matters"
-`;
-      }
+- 1–2 line explanations
+- Keywords highlighted
+- Full revision box
+- "Why It Matters"
 
-      // Focused Scholars
-      else if (category === "Focused Scholars" && classLevel == "9") {
-        finalPrompt = `
-Create concept-focused notes.
+CLASS 8 – QUESTIONS:
+- 2 basic + 2 conceptual + 1 application
 
-Topic: ${message}
+========================
+HIGH SCHOOL (CLASS 9 & 11)
+========================
 
-Rules:
+CLASS 9 – SIMPLIFIED NOTES:
 - 4–6 bullet points
-- short paragraphs
-- keywords with explanation
-- small revision box
-`;
-      }
+- Short paragraph explanation
+- Keywords with (explanation)
+- Small revision box
 
-      else if (category === "Focused Scholars" && classLevel == "11") {
-        finalPrompt = `
-Create advanced notes.
+CLASS 9 – QUESTIONS:
+- 2–3 basic + 2 conceptual
 
-Topic: ${message}
+---
 
-Rules:
+CLASS 11 – SIMPLIFIED NOTES:
 - 5–7 bullet points
-- 1–2 paragraphs
-- keywords bold
-- include "Why It Matters"
-- include mini-examples
-`;
-      }
+- 1–2 short paragraphs (core concept)
+- Keywords **bolded**
+- Revision box with "Why It Matters"
+- MUST include mini-examples / practical understanding
 
-      // Exam Champions
-      else if (category === "Exam Champions" && classLevel == "10") {
-        finalPrompt = `
-Create exam-focused notes.
+CLASS 11 – QUESTIONS:
+- 2 basic + 2 conceptual + 2 application
 
-Topic: ${message}
+========================
+BOARD (CLASS 10 & 12)
+========================
 
-Rules:
-- 6–8 key points
+CLASS 10 – SIMPLIFIED NOTES:
+- 6–8 bullet points
 - 2 short paragraphs
-- keywords with explanations/examples
-- include "Why It Matters"
-- revision box (5–7 points + exam tips)
-`;
-      }
+- Keywords **bold + explanation ( )**
+- "Why It Matters"
+- Revision Box (5–7 points + exam tips)
 
-      else if (category === "Exam Champions" && classLevel == "12") {
-        finalPrompt = `
-Create advanced exam notes.
-
-Topic: ${message}
-
-Rules:
-- 7–10 key points
-- 2–3 paragraphs
-- keywords with examples
-- include "Why It Matters"
-- include mini-case
-- revision box (5–7 points + quick exam tricks)
-`;
-      }
-
-      // Advanced Thinkers
-      else if (category === "Advanced Thinkers") {
-        finalPrompt = `
-Create college-level notes.
-
-Topic: ${message}
-
-Rules:
-- 6–8 key points
-- 2–4 paragraphs
-- keywords with practical applications
-- revision box (5–7 points)
-- include "Why It Matters" (real-world relevance)
-`;
-      }
-    }
-
-    // ===============================
-    // GENERATE QUESTIONS
-    // ===============================
-    else if (feature === "Generate Questions") {
-
-      // Junior Learners
-      if (category === "Junior Learners" && classLevel == "6") {
-        finalPrompt = `
-Generate questions.
-
-Topic: ${message}
-
-Rules:
-- 2–3 basic questions
-- definition based
-- very easy
-`;
-      }
-
-      else if (category === "Junior Learners" && classLevel == "7") {
-        finalPrompt = `
-Generate questions.
-
-Topic: ${message}
-
-Rules:
-- 2 basic questions
-- 2 conceptual questions
-`;
-      }
-
-      else if (category === "Junior Learners" && classLevel == "8") {
-        finalPrompt = `
-Generate questions.
-
-Topic: ${message}
-
-Rules:
-- 2 basic
-- 2 conceptual
-- 1 application question
-`;
-      }
-
-      // Focused Scholars
-      else if (category === "Focused Scholars" && classLevel == "9") {
-        finalPrompt = `
-Generate questions.
-
-Topic: ${message}
-
-Rules:
-- 2–3 basic questions
-- 2 conceptual questions
-`;
-      }
-
-      else if (category === "Focused Scholars" && classLevel == "11") {
-        finalPrompt = `
-Generate questions.
-
-Topic: ${message}
-
-Rules:
-- 2 basic
-- 2 conceptual
-- 2 application questions
-`;
-      }
-
-      // Exam Champions
-      else if (category === "Exam Champions" && classLevel == "10") {
-        finalPrompt = `
-Generate board exam questions.
-
-Topic: ${message}
-
-Rules:
-- 3 basic questions
-- 3 conceptual questions
-- 2 long questions
-- 1 application question
-`;
-      }
-
-      else if (category === "Exam Champions" && classLevel == "12") {
-        finalPrompt = `
-Generate advanced exam questions.
-
-Topic: ${message}
-
-Rules:
+CLASS 10 – QUESTIONS:
 - 3 basic
 - 3 conceptual
-- 2–3 application questions
+- 2 long questions
+- 1 application
+
+---
+
+CLASS 12 – SIMPLIFIED NOTES:
+- 7–10 bullet points
+- 2–3 paragraphs
+- Keywords **bold + mini examples**
+- "Why It Matters" + case
+- Revision Box (5–7 + exam tricks)
+
+CLASS 12 – QUESTIONS:
+- 3 basic
+- 3 conceptual
+- 2–3 application
 - 2–3 long questions
-`;
-      }
 
-      // Advanced Thinkers
-      else if (category === "Advanced Thinkers") {
-        finalPrompt = `
-Generate analytical questions.
+========================
+COLLEGE CATEGORY
+========================
 
-Topic: ${message}
+COLLEGE – SIMPLIFIED NOTES:
+- 6–8 bullet points
+- 2–4 paragraphs
+- Keywords **bold + practical examples**
+- Revision Box (5–7 points)
+- "Why It Matters" (real-world/research)
 
-Rules:
+COLLEGE – QUESTIONS:
 - 2–3 basic
 - 2–3 conceptual
 - 2–3 application
-- 1–2 case study questions
-`;
-      }
-    }
+- 1–2 advanced case study
 
-    // API CALL
+========================
+FINAL STRICT RULE
+========================
+- If user asks NOTES → give full structured notes
+- If user asks QUESTIONS → ONLY questions (NO answers)
+- NEVER mix formats
+- NEVER reduce or increase counts
+    `;
+
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -265,8 +161,10 @@ Rules:
       body: JSON.stringify({
         model: "openrouter/auto",
         messages: [
-          { role: "user", content: finalPrompt }
-        ]
+          { role: "system", content: systemPrompt },
+          { role: "user", content: message }
+        ],
+        temperature: 0.2
       })
     });
 
@@ -274,9 +172,9 @@ Rules:
 
     let reply = "AI could not generate a response";
 
-    if (data && data.choices && data.choices[0] && data.choices[0].message) {
+    if (data?.choices?.[0]?.message?.content) {
       reply = data.choices[0].message.content;
-    } else if (data && data.error) {
+    } else if (data?.error) {
       reply = "Error: " + data.error.message;
     }
 
