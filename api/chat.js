@@ -9,7 +9,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ reply: "Missing className, feature, or topic" });
     }
 
-    // 1️⃣ Templates mapping (Simplify Notes + Generate Questions)
+    // --- Templates for exact features ---
     const templates = {
       "Class6": {
         "simplifyNotes": "3–4 points, simple sentences, short definitions, small revision box",
@@ -45,14 +45,14 @@ export default async function handler(req, res) {
       }
     };
 
-    // 2️⃣ Generate prompt dynamically
     const template = templates[className]?.[feature];
     if (!template) {
       return res.status(400).json({ reply: "Invalid className or feature" });
     }
 
+    // --- Construct strict system prompt ---
     const systemPrompt = `
-You are a STRICT educational AI. Follow FEATURES EXACTLY as defined.
+You are STRICT educational AI. Follow FEATURES EXACTLY.
 
 Class: ${className}
 Feature: ${feature}
@@ -63,12 +63,14 @@ ${topic}
 
 Rules:
 - Follow template exactly
-- No missing points
-- No extra explanation
-- Output must be clean, structured, professional
+- Output structured notes with bullets, paragraphs, and revision box
+- Include 'Why It Matters' for board/school/college
+- Include exam tips if applicable
+- Do NOT skip points or add extra content
+- Output must be clean, professional, and ready for student use
 `;
 
-    // 3️⃣ API call to OpenRouter
+    // --- OpenRouter API call ---
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -77,14 +79,14 @@ Rules:
       },
       body: JSON.stringify({
         model: "openai/gpt-4o-mini",
-        messages: [
-          { role: "system", content: systemPrompt }
-        ],
+        messages: [{ role: "system", content: systemPrompt }],
         temperature: 0.1
       })
     });
 
     const data = await response.json();
+
+    // --- Extract reply safely ---
     const reply = data?.choices?.[0]?.message?.content || data?.error?.message || "AI could not generate a response";
 
     return res.status(200).json({ reply });
