@@ -1,9 +1,9 @@
 // --- CATEGORY & CLASS MAPPING ---
 const studentMapping = { 
-    junior: ["Class 6", "Class 7", "Class 8"], 
-    focus: ["Class 9", "Class 11"], 
-    exam: ["Class 10", "Class 12"], 
-    college: ["College Level"] 
+    junior: ["Class6", "Class7", "Class8"], 
+    focus: ["Class9", "Class11"], 
+    exam: ["Class10", "Class12"], 
+    college: ["College"] 
 };
 
 // --- DOM ELEMENTS ---
@@ -42,12 +42,12 @@ document.getElementById('closeModal').onclick = () => {
 };
 
 // --- AI QUERY FUNCTION ---
-async function getAIResponse(prompt) {
+async function getAIResponse(className, feature, topic) {
     try {
         const response = await fetch(API_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ message: prompt })
+            body: JSON.stringify({ className, feature, topic })
         });
 
         if (!response.ok) return "Server error: " + response.status;
@@ -67,9 +67,7 @@ document.getElementById('btnSimplify').onclick = async () => {
 
     result.innerText = "Simplifying notes... ⏳";
 
-    const output = await getAIResponse(
-        `Simplify these notes for ${classList.value}: ${notes.value}`
-    );
+    const output = await getAIResponse(classList.value, "simplifyNotes", notes.value);
 
     result.innerHTML = `
         <h3 style="color:var(--teal)">Simplified by Novabyte AI</h3>
@@ -83,9 +81,7 @@ document.getElementById('btnQuestions').onclick = async () => {
 
     result.innerText = "Generating questions... ⏳";
 
-    const output = await getAIResponse(
-        `Create 5 practice questions for ${classList.value} based on: ${notes.value}`
-    );
+    const output = await getAIResponse(classList.value, "generateQuestions", notes.value);
 
     result.innerHTML = `
         <h3 style="color:var(--orange)">AI Generated Questions</h3>
