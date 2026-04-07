@@ -71,7 +71,7 @@ document.getElementById('btnSimplify').onclick = async () => {
 
     result.innerHTML = `
         <h3 style="color:var(--teal)">Simplified by Novabyte AI</h3>
-        <p>${output}</p>
+        <pre style="white-space: pre-wrap;">${output}</pre>
     `;
 };
 
@@ -85,7 +85,7 @@ document.getElementById('btnQuestions').onclick = async () => {
 
     result.innerHTML = `
         <h3 style="color:var(--orange)">AI Generated Questions</h3>
-        <p>${output}</p>
+        <pre style="white-space: pre-wrap;">${output}</pre>
     `;
 };
 
