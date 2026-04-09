@@ -10,67 +10,39 @@ export default async function handler(req, res) {
       return res.status(400).json({ reply: "Missing data" });
     }
 
-    // ✅ LEVEL CONTROL (STRONG)
-    const levelMap = {
-      "Class6": "very easy, simple words, short lines",
-      "Class7": "easy explanation, simple language",
-      "Class8": "moderate explanation with examples",
-      "Class9": "balanced explanation, some concepts",
-      "Class10": "board level, structured, clear concepts",
-      "Class11": "conceptual, deeper explanation",
-      "Class12": "advanced, exam-focused answers",
-      "College": "professional, detailed explanation"
+    // 🔥 LEVEL CONTROL
+    const roleMap = {
+      Class6: "Explain like teaching a young child. Use very easy words and short sentences.",
+      Class7: "Explain clearly with simple language and small concepts.",
+      Class8: "Explain with clarity and basic concepts with small examples.",
+      Class9: "Explain concepts clearly with logic and understanding.",
+      Class10: "Act like a CBSE board teacher. Give structured and exam-focused explanation.",
+      Class11: "Explain deeply with conceptual clarity and small examples.",
+      Class12: "Act like an expert teacher. Give advanced and exam-focused explanation.",
+      College: "Explain in a professional academic style with real-world understanding."
     };
 
-    // ✅ FEATURE CONTROL (STRICT)
+    // 🔥 FEATURE CONTROL
     const featureMap = {
-      simplifyNotes: `
-Return ONLY simplified notes.
-- Use bullet points
-- Add small paragraph
-- Add "Why It Matters"
-- Add "Revision Box"
-- DO NOT include questions
-`,
-      generateQuestions: `
-Return ONLY questions.
-
-Structure:
-- Basic Questions (3)
-- Conceptual Questions (3)
-- Application Questions (2)
-
-If Class10 or above:
-- Add 5 MCQs
-
-If Class11 or above:
-- Add 1 Case Study
-
-DO NOT include notes or explanations
-`
+      simplifyNotes: "Explain the topic in structured and easy-to-read notes.",
+      generateQuestions: "Generate different types of questions from the topic."
     };
 
-    // ✅ FINAL PROMPT (FIXED)
-    const systemPrompt = `
-You are a strict educational assistant.
+    const prompt = `
+${roleMap[className]}
 
-Class Level: ${className}
-Level Rule: ${levelMap[className]}
-
-Feature: ${feature}
-Instructions:
+Task:
 ${featureMap[feature]}
 
 Topic:
 ${topic}
 
 Rules:
-- Follow structure strictly
-- Do not mix sections
-- Keep output clean
+- Keep response clean
+- Use line breaks between points
+- Do not mix notes and questions
 `;
 
-    // ✅ FIXED API CALL (IMPORTANT)
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -79,30 +51,17 @@ Rules:
       },
       body: JSON.stringify({
         model: "openai/gpt-4o-mini",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: topic }
-        ],
-        temperature: 0.2
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.3
       })
     });
 
     const data = await response.json();
-
-    let reply =
-      data?.choices?.[0]?.message?.content ||
-      data?.error?.message ||
-      "AI response failed";
-
-    // ✅ SAFETY CLEAN (minor fix)
-    if (feature === "simplifyNotes" && reply.toLowerCase().includes("question")) {
-      reply = reply.replace(/question/gi, "");
-    }
+    const reply = data?.choices?.[0]?.message?.content || "No response";
 
     return res.status(200).json({ reply });
 
   } catch (error) {
-    console.error("ERROR:", error);
     return res.status(500).json({ reply: "Server Error ❌" });
   }
 }
