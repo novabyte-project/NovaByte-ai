@@ -1,33 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Novabyte AI</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Novabyte AI | Student Portalz</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-  <h1>Novabyte AI Notes & Questions Generator</h1>
 
-  <label>Category:</label>
-  <select id="categorySelect">
-    <option value="junior">Junior</option>
-    <option value="focus">Focus</option>
-    <option value="exam">Exam</option>
-    <option value="college">College</option>
-  </select>
+    <header class="header">
+        <div class="logo-container">
+            <h1 class="brand-name">NOVABYTE <span class="ai-text">AI</span></h1>
+        </div>
+    </header>
 
-  <label>Class:</label>
-  <select id="classSelect"></select>
+    <main class="container">
+        <div class="controls">
+            <div class="dropdown-group">
+                <label>Category</label>
+                <select id="categorySelect">
+                    <option value="junior">Junior Learners</option>
+                    <option value="focus">Focus Scholars</option>
+                    <option value="exam">Exam Champions</option>
+                    <option value="college">Advanced Thinkers</option>
+                </select>
+            </div>
+            <div class="dropdown-group">
+                <label>Class / Level</label>
+                <select id="classSelect"></select>
+            </div>
+        </div>
 
-  <label>Paste your notes/topic here:</label>
-  <textarea id="studentNotes" rows="10"></textarea>
+        <div class="input-wrapper">
+            <div class="box-header">
+                <span><i class="fas fa-pen-nib"></i> Your Study Notes</span>
+                <button id="previewBtn" title="Full Screen View">
+                    <i class="fas fa-expand-alt"></i>
+                </button>
+            </div>
+            <textarea id="studentNotes" placeholder="Paste your notes here..."></textarea>
+        </div>
 
-  <button id="btnSimplify">Simplify Notes</button>
-  <button id="btnQuestions">Generate Questions</button>
-  <button id="btnCopy">Copy Result</button>
+        <div class="button-grid">
+            <button id="btnSimplify" class="btn btn-teal">Simplify Notes</button>
+            <button id="btnQuestions" class="btn btn-orange">Generate Questions</button>
+        </div>
 
-  <div id="resultBox"></div>
+        <div class="result-wrapper">
+            <div class="box-header">
+                <span><i class="fas fa-magic"></i> AI Generated Result</span>
+                <button id="btnCopy" class="btn-copy">Copy Result</button>
+            </div>
+            <div id="resultBox" class="scrollable-box">
+                <p class="placeholder-text">Output will appear here...</p>
+            </div>
+        </div>
+    </main>
 
-  <script src="chat.js"></script>
+    <div id="previewModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Notes Preview</h3>
+                <span id="closeModal" class="close">&times;</span>
+            </div>
+            <textarea id="modalText" class="modal-textarea"></textarea>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
