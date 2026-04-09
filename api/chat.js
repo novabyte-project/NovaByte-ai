@@ -1,15 +1,10 @@
 export default async function handler(req, res) {
   try {
-    if (req.method !== "POST") {
-      return res.status(405).json({ reply: "Only POST requests allowed" });
-    }
+    if (req.method !== "POST") return res.status(405).json({ reply: "Only POST requests allowed" });
 
     const { className, feature, topic } = req.body;
-    if (!className || !feature || !topic) {
-      return res.status(400).json({ reply: "Missing className, feature, or topic" });
-    }
+    if (!className || !feature || !topic) return res.status(400).json({ reply: "Missing className, feature, or topic" });
 
-    // --- Templates for exact features ---
     const templates = {
       "Class6": { "simplifyNotes": "3–4 points, simple sentences, short definitions, small revision box", "generateQuestions": "2–3 basic definition questions" },
       "Class7": { "simplifyNotes": "4–5 bullets, short paragraphs, keywords in brackets, mini revision box", "generateQuestions": "2 basic + 2 conceptual questions" },
@@ -24,17 +19,12 @@ export default async function handler(req, res) {
     const template = templates[className]?.[feature];
     if (!template) return res.status(400).json({ reply: "Invalid className or feature" });
 
-    // --- Construct strict system prompt ---
     const systemPrompt = `
 You are STRICT educational AI. Follow FEATURES EXACTLY.
-
 Class: ${className}
 Feature: ${feature}
 Template: ${template}
-
-Topic:
-${topic}
-
+Topic: ${topic}
 Rules:
 - Follow template exactly
 - Include bullets, paragraphs, revision box
@@ -47,15 +37,8 @@ Rules:
 
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
-      headers: {
-        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: "openai/gpt-4o-mini",
-        messages: [{ role: "system", content: systemPrompt }],
-        temperature: 0.1
-      })
+      headers: { "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ model: "openai/gpt-4o-mini", messages: [{ role: "system", content: systemPrompt }], temperature: 0.1 })
     });
 
     const data = await response.json();
