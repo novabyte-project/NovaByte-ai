@@ -5,96 +5,98 @@ export default async function handler(req, res) {
     }
 
     const { className, feature, topic } = req.body;
+
     if (!className || !feature || !topic) {
       return res.status(400).json({ reply: "Missing data" });
     }
 
-    // 🔥 LEVEL CONTROL (MAIN FIX)
-    const levelInstructions = {
-      "Class6": "Use very simple English, short sentences, no tough words.",
-      "Class7": "Use simple explanations, basic terms, easy understanding.",
-      "Class8": "Moderate explanation with simple examples.",
-      "Class9": "Balanced level, some concepts + short explanations.",
-      "Class10": "Board level answers, clear concepts, proper structure, examples.",
-      "Class11": "Higher level, conceptual clarity, deeper explanation.",
-      "Class12": "Advanced board level, detailed, exam-focused answers.",
-      "College": "Professional level, detailed with real-world examples."
+    // ✅ LEVEL CONTROL (STRONG)
+    const levelMap = {
+      "Class6": "very easy, simple words, short lines",
+      "Class7": "easy explanation, simple language",
+      "Class8": "moderate explanation with examples",
+      "Class9": "balanced explanation, some concepts",
+      "Class10": "board level, structured, clear concepts",
+      "Class11": "conceptual, deeper explanation",
+      "Class12": "advanced, exam-focused answers",
+      "College": "professional, detailed explanation"
     };
 
-    // 🔥 STRICT FEATURE CONTROL
-    const featureInstructions = {
+    // ✅ FEATURE CONTROL (STRICT)
+    const featureMap = {
       simplifyNotes: `
-- ONLY simplified notes
-- Give bullet points (as per class level)
-- Add short explanation paragraph
+Return ONLY simplified notes.
+- Use bullet points
+- Add small paragraph
 - Add "Why It Matters"
 - Add "Revision Box"
-- DO NOT add questions
+- DO NOT include questions
 `,
-
       generateQuestions: `
-- ONLY questions (NO notes)
-- Must include:
-  • Basic Questions
-  • Conceptual Questions
-  • Application Questions
-- For Class10,11,12:
-  • Add 5 MCQs (with options)
-- For Class11,12:
-  • Add 1 Case Study question
-- DO NOT add explanations
+Return ONLY questions.
+
+Structure:
+- Basic Questions (3)
+- Conceptual Questions (3)
+- Application Questions (2)
+
+If Class10 or above:
+- Add 5 MCQs
+
+If Class11 or above:
+- Add 1 Case Study
+
+DO NOT include notes or explanations
 `
     };
 
-    // 🔥 FINAL SYSTEM PROMPT (VERY STRICT)
+    // ✅ FINAL PROMPT (FIXED)
     const systemPrompt = `
-You are a STRICT educational AI.
+You are a strict educational assistant.
 
-Class: ${className}
+Class Level: ${className}
+Level Rule: ${levelMap[className]}
+
 Feature: ${feature}
+Instructions:
+${featureMap[feature]}
 
-LEVEL RULE:
-${levelInstructions[className]}
-
-FEATURE RULE:
-${featureInstructions[feature]}
-
-TOPIC:
+Topic:
 ${topic}
 
-CRITICAL RULES:
-- Follow LEVEL strictly
-- Follow FEATURE strictly
-- DO NOT mix notes and questions
-- DO NOT add extra sections
-- Keep output clean and structured
+Rules:
+- Follow structure strictly
+- Do not mix sections
+- Keep output clean
 `;
 
-    // 🔥 API CALL
+    // ✅ FIXED API CALL (IMPORTANT)
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
-        "Authorization": \`Bearer \${process.env.OPENROUTER_API_KEY}\`,
+        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
         model: "openai/gpt-4o-mini",
-        messages: [{ role: "system", content: systemPrompt }],
-        temperature: 0 // 🔥 VERY IMPORTANT
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: topic }
+        ],
+        temperature: 0.2
       })
     });
 
     const data = await response.json();
 
-    let reply = data?.choices?.[0]?.message?.content || "No response";
+    let reply =
+      data?.choices?.[0]?.message?.content ||
+      data?.error?.message ||
+      "AI response failed";
 
-    // 🔥 EXTRA SAFETY (ANTI-MIX FIX)
+    // ✅ SAFETY CLEAN (minor fix)
     if (feature === "simplifyNotes" && reply.toLowerCase().includes("question")) {
-      reply = "⚠️ Regenerate: AI mixed questions in notes.";
-    }
-
-    if (feature === "generateQuestions" && reply.toLowerCase().includes("definition")) {
-      reply = "⚠️ Regenerate: AI mixed notes in questions.";
+      reply = reply.replace(/question/gi, "");
     }
 
     return res.status(200).json({ reply });
