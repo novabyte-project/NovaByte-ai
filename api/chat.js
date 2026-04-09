@@ -10,7 +10,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ reply: "Missing data" });
     }
 
-    // 🔥 LEVEL CONTROL
+    // Class-specific explanation
     const roleMap = {
       Class6: "Explain like teaching a young child. Use very easy words and short sentences.",
       Class7: "Explain clearly with simple language and small concepts.",
@@ -22,7 +22,7 @@ export default async function handler(req, res) {
       College: "Explain in a professional academic style with real-world understanding."
     };
 
-    // 🔥 FEATURE CONTROL
+    // Feature control
     const featureMap = {
       simplifyNotes: "Explain the topic in structured and easy-to-read notes.",
       generateQuestions: "Generate different types of questions from the topic."
