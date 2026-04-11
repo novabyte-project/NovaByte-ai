@@ -6,15 +6,17 @@ const studentMapping = {
     college: ["College Level"] 
 };
 
-// Convert UI class → backend category
+// Convert UI class → backend category (FIXED)
 function mapClassToCategory(cls) {
-    if (cls === "Class 6" || cls === "Class 7") return "6-7";
-    if (cls === "Class 8") return "8";
-    if (cls === "Class 9") return "9";
-    if (cls === "Class 10") return "10";
-    if (cls === "Class 11") return "11";
-    if (cls === "Class 12") return "12";
-    if (cls === "College Level") return "college";
+    cls = cls.toLowerCase().trim();
+
+    if (cls.includes("6") || cls.includes("7")) return "6-7";
+    if (cls.includes("8")) return "8";
+    if (cls.includes("9")) return "9";
+    if (cls.includes("10")) return "10";
+    if (cls.includes("11")) return "11";
+    if (cls.includes("12")) return "12";
+    if (cls.includes("college")) return "college";
 }
 
 // ---------- API ----------
@@ -27,6 +29,9 @@ const notes = document.getElementById('studentNotes');
 const result = document.getElementById('resultBox');
 const modal = document.getElementById('previewModal');
 const modalText = document.getElementById('modalText');
+
+// ---------- LOADING LOCK ----------
+let isLoading = false;
 
 // ---------- API CALL ----------
 async function getAIResponse(message, feature, category) {
@@ -42,9 +47,14 @@ async function getAIResponse(message, feature, category) {
         if (!response.ok) {
             return "Server error: " + response.status;
         }
-        
+
         const data = await response.json();
-        return data.reply || "AI did not return a proper response.";
+
+        if (!data || !data.reply) {
+            return "No response from AI server";
+        }
+
+        return data.reply;
 
     } catch (error) {
         console.error("Fetch Error:", error);
@@ -55,7 +65,9 @@ async function getAIResponse(message, feature, category) {
 // ---------- CLASS DROPDOWN ----------
 function refreshClasses() {
     const items = studentMapping[category.value];
-    classList.innerHTML = items.map(item => `<option value="${item}">${item}</option>`).join('');
+    classList.innerHTML = items
+        .map(item => `<option value="${item}">${item}</option>`)
+        .join('');
 }
 
 category.addEventListener('change', refreshClasses);
@@ -63,11 +75,13 @@ window.onload = refreshClasses;
 
 // ---------- PREVIEW ----------
 document.getElementById('previewBtn').onclick = () => {
-    if(notes.value.trim() === "") alert("Please paste some notes first!");
-    else { 
-        modalText.value = notes.value;
-        modal.style.display = "block"; 
+    if(notes.value.trim() === "") {
+        alert("Please paste some notes first!");
+        return;
     }
+
+    modalText.value = notes.value;
+    modal.style.display = "block";
 };
 
 document.getElementById('closeModal').onclick = () => {
@@ -77,9 +91,11 @@ document.getElementById('closeModal').onclick = () => {
 
 // ---------- SIMPLIFY ----------
 document.getElementById('btnSimplify').onclick = async () => {
-    if(!notes.value.trim()) return alert("Please enter notes!");
+    if (isLoading) return;
+    if (!notes.value.trim()) return alert("Please enter notes!");
 
-    result.innerText = "simplified notes... ⏳";
+    isLoading = true;
+    result.innerText = "Simplified notes... ⏳";
 
     const categoryValue = mapClassToCategory(classList.value);
 
@@ -89,6 +105,8 @@ document.getElementById('btnSimplify').onclick = async () => {
         categoryValue
     );
 
+    isLoading = false;
+
     result.innerHTML = `
         <h3 style="color:var(--teal)">Simplified by Novabyte AI</h3>
         <pre style="white-space:pre-wrap">${output}</pre>
@@ -97,8 +115,10 @@ document.getElementById('btnSimplify').onclick = async () => {
 
 // ---------- QUESTIONS ----------
 document.getElementById('btnQuestions').onclick = async () => {
-    if(!notes.value.trim()) return alert("Please enter notes!");
+    if (isLoading) return;
+    if (!notes.value.trim()) return alert("Please enter notes!");
 
+    isLoading = true;
     result.innerText = "Generating questions... ⏳";
 
     const categoryValue = mapClassToCategory(classList.value);
@@ -109,14 +129,17 @@ document.getElementById('btnQuestions').onclick = async () => {
         categoryValue
     );
 
+    isLoading = false;
+
     result.innerHTML = `
-        <h3 style="color:var(--orange)">AI Generated Practice Paper</h3>
+        <h3 style="color:var(--orange)">AI Generated Questions</h3>
         <pre style="white-space:pre-wrap">${output}</pre>
     `;
 };
 
 // ---------- COPY ----------
 document.getElementById('btnCopy').onclick = () => {
-    navigator.clipboard.writeText(result.innerText);
+    const text = result.querySelector("pre")?.innerText || result.innerText;
+    navigator.clipboard.writeText(text);
     alert("Result copied!");
 };
