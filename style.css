@@ -1,70 +1,295 @@
-
-:root { --bg-color: #05070a; --card-bg: #11141d; --text-main: #ffffff; --text-dim: #a0aec0; --nb-red: #e11d48; --teal: #0d9488; --orange: #ea580c; --border: #2d3748; }
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-color); color: var(--text-main); padding: 10px; }
-
-.header { padding: 30px 0; text-align: center; }
-.logo-container { display: flex; flex-direction: column; align-items: center; gap: 10px; }
-.brand-name { font-family: 'Orbitron', sans-serif; font-size: 1.8rem; letter-spacing: 4px; color: var(--text-main); }
-.ai-text { color: var(--nb-red); font-family: 'Orbitron', sans-serif; }
-
-.container { max-width: 800px; margin: 0 auto; }
-.controls { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
-select { width: 100%; padding: 14px; background: var(--card-bg); border: 1px solid var(--border); color: white; border-radius: 12px; cursor: pointer; }
-
-/* 🔥 FIX APPLIED HERE */
-.input-wrapper, .result-wrapper { 
-    background: var(--card-bg); 
-    border: 1px solid var(--border); 
-    border-radius: 16px; 
-    margin-bottom: 20px; 
-    overflow: hidden; /* ✅ FIX */
+:root { 
+    --bg-color: #05070a; 
+    --card-bg: #11141d; 
+    --text-main: #ffffff; 
+    --text-dim: #a0aec0; 
+    --nb-red: #e11d48; 
+    --teal: #0d9488; 
+    --orange: #ea580c; 
+    --border: #2d3748; 
 }
 
-/* 🔥 EXTRA FIX FOR HEADER CURVE */
+* { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+}
+
+body { 
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--bg-color); 
+    color: var(--text-main); 
+    padding: 10px;
+    line-height: 1.7; /* ✅ PROFESSIONAL SPACING */
+}
+
+.header { 
+    padding: 30px 0; 
+    text-align: center; 
+}
+
+.logo-container { 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    gap: 10px; 
+}
+
+.brand-name { 
+    font-family: 'Orbitron', sans-serif; 
+    font-size: 1.8rem; 
+    letter-spacing: 4px; 
+    color: var(--text-main); 
+}
+
+.ai-text { 
+    color: var(--nb-red); 
+    font-family: 'Orbitron', sans-serif; 
+}
+
+.container { 
+    max-width: 800px; 
+    margin: 0 auto; 
+}
+
+.controls { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 20px; /* ✅ BETTER GAP */
+    margin-bottom: 30px; /* ✅ MORE SPACE */
+}
+
+select { 
+    width: 100%; 
+    padding: 16px; /* ✅ BIGGER PADDING */
+    background: var(--card-bg); 
+    border: 2px solid var(--border); /* ✅ THICKER BORDER */
+    color: white; 
+    border-radius: 16px; /* ✅ ROUNDED */
+    cursor: pointer; 
+    font-size: 16px; /* ✅ BIGGER FONT */
+    transition: all 0.3s ease; /* ✅ SMOOTH */
+}
+
+select:focus {
+    outline: none;
+    border-color: var(--teal);
+    box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.1);
+}
+
+/* 🔥 RESULT OUTPUT - PROFESSIONAL FIX */
+.input-wrapper, .result-wrapper { 
+    background: linear-gradient(145deg, var(--card-bg), #1a1f2b); /* ✅ PREMIUM GRADIENT */
+    border: 2px solid var(--border); 
+    border-radius: 20px; /* ✅ MORE ROUNDED */
+    margin-bottom: 25px; /* ✅ PERFECT GAP */
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3); /* ✅ PREMIUM SHADOW */
+}
+
+/* 🔥 HEADER - PROFESSIONAL */
 .box-header { 
-    background: rgba(225, 29, 72, 0.1); 
-    padding: 12px 20px; 
+    background: linear-gradient(135deg, rgba(225, 29, 72, 0.15), rgba(13, 148, 136, 0.1)); /* ✅ GRADIENT */
+    padding: 18px 24px; /* ✅ BIGGER PADDING */
     display: flex; 
     justify-content: space-between; 
     align-items: center; 
-    border-bottom: 1px solid var(--border); 
-    font-size: 0.9rem;
+    border-bottom: 2px solid var(--border); 
+    font-size: 1rem; /* ✅ BIGGER FONT */
+    font-weight: 600;
 
-    border-top-left-radius: 16px;   /* ✅ FIX */
-    border-top-right-radius: 16px;  /* ✅ FIX */
+    border-top-left-radius: 18px;
+    border-top-right-radius: 18px;
 }
 
-textarea { width: 100%; height: 200px; background: transparent; border: none; color: white; padding: 20px; resize: none; outline: none; font-size: 1.1rem; }
-.scrollable-box { height: 250px; overflow-y: auto; padding: 20px; word-wrap: break-word; }
+textarea, .scrollable-box { 
+    width: 100%; 
+    font-size: 16px !important; /* ✅ BIGGER TEXT - FIXED */
+    line-height: 1.8 !important; /* ✅ PERFECT SPACING */
+    font-weight: 400 !important; /* ✅ CLEAN */
+}
 
-.button-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
-.btn { padding: 16px; border: none; border-radius: 12px; font-weight: 800; text-transform: uppercase; cursor: pointer; transition: 0.3s; }
-.btn-teal { background: var(--teal); color: white; }
-.btn-orange { background: var(--orange); color: white; }
+textarea { 
+    height: 220px; /* ✅ TALLER */
+    background: transparent; 
+    border: none; 
+    color: var(--text-main); 
+    padding: 24px; /* ✅ BIGGER PADDING */
+    resize: none; 
+    outline: none; 
+}
 
-.btn-copy { background: #00F5FF; color: #000; border: none; padding: 6px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: all 0.3s ease; }
-.btn-copy:hover { background: #fff; box-shadow: 0 0 15px #00F5FF; transform: scale(1.05); }
+.scrollable-box { 
+    height: 400px; /* ✅ TALLER RESULT */
+    overflow-y: auto; 
+    padding: 24px; /* ✅ BIGGER PADDING */
+    word-wrap: break-word;
+    background: rgba(255,255,255,0.02); /* ✅ SUBTLE BG */
+}
 
-#previewBtn { background: none; border: none; color: var(--nb-red); cursor: pointer; font-size: 1.3rem; }
-.modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); }
+/* 🔥 RESULT H3 - PREMIUM */
+.scrollable-box h3 {
+    font-size: 22px !important; /* ✅ BIGGER */
+    font-weight: 700 !important;
+    margin: 0 0 20px 0 !important; /* ✅ PERFECT GAP */
+    padding: 16px 0 !important;
+    text-align: center;
+    background: linear-gradient(135deg, var(--teal), var(--orange));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 1px;
+}
 
-/* --- FIXED MODAL STRUCTURE --- */
-.modal-content { background: #1a1e2e; margin: 3% auto; width: 90%; max-width: 850px; height: 85vh; border-radius: 20px; border: 1px solid var(--nb-red); display: flex; flex-direction: column; overflow: hidden; }
-.modal-header { padding: 20px; display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); flex-shrink: 0; }
-.close { font-size: 30px; cursor: pointer; color: var(--nb-red); }
+.button-grid { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 20px; /* ✅ BETTER GAP */
+    margin-bottom: 30px;
+}
+
+.btn { 
+    padding: 18px 24px; /* ✅ BIGGER BUTTONS */
+    border: none; 
+    border-radius: 16px; /* ✅ ROUNDED */
+    font-weight: 700; 
+    text-transform: uppercase; 
+    cursor: pointer; 
+    transition: all 0.3s ease;
+    font-size: 16px; /* ✅ BIGGER TEXT */
+    letter-spacing: 1px;
+}
+
+.btn-teal { 
+    background: linear-gradient(135deg, var(--teal), #059669); /* ✅ GRADIENT */
+    color: white; 
+}
+
+.btn-orange { 
+    background: linear-gradient(135deg, var(--orange), #f97316); /* ✅ GRADIENT */
+    color: white; 
+}
+
+.btn:hover {
+    transform: translateY(-3px); /* ✅ LIFT EFFECT */
+    box-shadow: 0 15px 30px rgba(0,0,0,0.4); /* ✅ SHADOW */
+}
+
+.btn-copy { 
+    background: linear-gradient(135deg, #00F5FF, #00BFFF); /* ✅ GRADIENT */
+    color: #000; 
+    border: none; 
+    padding: 10px 20px; 
+    border-radius: 10px; 
+    cursor: pointer; 
+    font-weight: 700; 
+    transition: all 0.3s ease; 
+    font-size: 14px;
+}
+
+.btn-copy:hover { 
+    background: #fff; 
+    box-shadow: 0 0 20px #00F5FF; 
+    transform: scale(1.05); 
+}
+
+#previewBtn { 
+    background: none; 
+    border: none; 
+    color: var(--nb-red); 
+    cursor: pointer; 
+    font-size: 1.4rem; 
+}
+
+.modal { 
+    display: none; 
+    position: fixed; 
+    z-index: 1000; 
+    left: 0; 
+    top: 0; 
+    width: 100%; 
+    height: 100%; 
+    background: rgba(0,0,0,0.95); 
+}
+
+/* 🔥 MODAL - PREMIUM */
+.modal-content { 
+    background: linear-gradient(145deg, #1a1e2e, #11141d); /* ✅ GRADIENT */
+    margin: 3% auto; 
+    width: 90%; 
+    max-width: 900px; /* ✅ WIDER */
+    height: 85vh; 
+    border-radius: 24px; /* ✅ ROUNDED */
+    border: 2px solid var(--nb-red); 
+    display: flex; 
+    flex-direction: column; 
+    overflow: hidden; 
+    box-shadow: 0 30px 60px rgba(0,0,0,0.5); /* ✅ BIG SHADOW */
+}
+
+.modal-header { 
+    padding: 24px; /* ✅ BIGGER */
+    display: flex; 
+    justify-content: space-between; 
+    border-bottom: 2px solid var(--border); 
+    flex-shrink: 0; 
+}
+
+.close { 
+    font-size: 32px; /* ✅ BIGGER */
+    cursor: pointer; 
+    color: var(--nb-red); 
+}
 
 .modal-textarea { 
     width: 100%; 
     flex: 1; 
-    background: transparent; 
+    background: rgba(255,255,255,0.02); /* ✅ SUBTLE */
     border: none; 
     color: white; 
-    padding: 30px; 
-    font-size: 1.1rem; 
+    padding: 32px; /* ✅ BIGGER PADDING */
+    font-size: 16px !important; /* ✅ BIGGER TEXT */
     resize: none; 
     outline: none; 
     overflow-y: auto; 
     word-wrap: break-word;
+    line-height: 1.8 !important;
+}
+
+/* 🔥 SCROLLBAR - PROFESSIONAL */
+.scrollable-box::-webkit-scrollbar,
+.modal-textarea::-webkit-scrollbar,
+textarea::-webkit-scrollbar {
+    width: 8px;
+}
+
+.scrollable-box::-webkit-scrollbar-track,
+.modal-textarea::-webkit-scrollbar-track,
+textarea::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.05);
+    border-radius: 10px;
+}
+
+.scrollable-box::-webkit-scrollbar-thumb,
+.modal-textarea::-webkit-scrollbar-thumb,
+textarea::-webkit-scrollbar-thumb {
+    background: var(--teal);
+    border-radius: 10px;
+}
+
+.scrollable-box::-webkit-scrollbar-thumb:hover,
+.modal-textarea::-webkit-scrollbar-thumb:hover,
+textarea::-webkit-scrollbar-thumb:hover {
+    background: var(--orange);
+}
+
+/* 🔥 RESPONSIVE */
+@media (max-width: 768px) {
+    .controls, .button-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .scrollable-box {
+        height: 350px;
+    }
 }
