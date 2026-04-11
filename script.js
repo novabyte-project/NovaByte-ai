@@ -6,7 +6,7 @@ const studentMapping = {
     college: ["College Level"] 
 };
 
-// Convert UI class → backend category (FIXED)
+// Convert UI class → backend category (ENHANCED)
 function mapClassToCategory(cls) {
     cls = cls.toLowerCase().trim();
 
@@ -17,6 +17,8 @@ function mapClassToCategory(cls) {
     if (cls.includes("11")) return "11";
     if (cls.includes("12")) return "12";
     if (cls.includes("college")) return "college";
+    
+    return "10"; // Default fallback
 }
 
 // ---------- API ----------
@@ -33,15 +35,20 @@ const modalText = document.getElementById('modalText');
 // ---------- LOADING LOCK ----------
 let isLoading = false;
 
-// ---------- API CALL ----------
-async function getAIResponse(message, feature, category) {
+// ---------- API CALL (ENHANCED with class info) ----------
+async function getAIResponse(message, feature, category, className) {
     try {
         const response = await fetch(API_URL, {
             method: "POST",
             headers: { 
                 "Content-Type": "application/json" 
             },
-            body: JSON.stringify({ message, feature, category })
+            body: JSON.stringify({ 
+                message, 
+                feature, 
+                category,
+                className  // NEW: Send exact class name for better control
+            })
         });
 
         if (!response.ok) {
@@ -95,20 +102,21 @@ document.getElementById('btnSimplify').onclick = async () => {
     if (!notes.value.trim()) return alert("Please enter notes!");
 
     isLoading = true;
-    result.innerText = "Simplifying... ⏳";
+    result.innerText = "Simplifying for " + classList.value + "... ⏳";
 
     const categoryValue = mapClassToCategory(classList.value);
 
     const output = await getAIResponse(
         notes.value,
         "notes",
-        categoryValue
+        categoryValue,
+        classList.value  // NEW: Send exact class
     );
 
     isLoading = false;
 
     result.innerHTML = `
-        <h3 style="color:var(--teal)">Simplified by Novabyte AI</h3>
+        <h3 style="color:var(--teal)">Simplified Notes for ${classList.value}</h3>
         <pre style="white-space:pre-wrap">${output}</pre>
     `;
 };
@@ -119,20 +127,21 @@ document.getElementById('btnQuestions').onclick = async () => {
     if (!notes.value.trim()) return alert("Please enter notes!");
 
     isLoading = true;
-    result.innerText = "Generating questions... ⏳";
+    result.innerText = "Generating questions for " + classList.value + "... ⏳";
 
     const categoryValue = mapClassToCategory(classList.value);
 
     const output = await getAIResponse(
         notes.value,
         "questions",
-        categoryValue
+        categoryValue,
+        classList.value  // NEW: Send exact class
     );
 
     isLoading = false;
 
     result.innerHTML = `
-        <h3 style="color:var(--orange)">AI Generated Practice Paper</h3>
+        <h3 style="color:var(--orange)">Practice Paper for ${classList.value}</h3>
         <pre style="white-space:pre-wrap">${output}</pre>
     `;
 };
@@ -141,5 +150,5 @@ document.getElementById('btnQuestions').onclick = async () => {
 document.getElementById('btnCopy').onclick = () => {
     const text = result.querySelector("pre")?.innerText || result.innerText;
     navigator.clipboard.writeText(text);
-    alert("Result copied!");
+    alert("✅ Copied to clipboard!");
 };
