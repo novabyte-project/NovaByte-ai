@@ -10,19 +10,9 @@ export default async function handler(req, res) {
       return res.status(400).json({ reply: "Missing input" });
     }
 
-    // ---------- CATEGORY NORMALIZER ----------
+    // ---------- CATEGORY (FIXED) ----------
     function normalizeCategory(category) {
-      category = category.toLowerCase();
-
-      if (category.includes("6") || category.includes("7")) return "6-7";
-      if (category.includes("8")) return "8";
-      if (category.includes("9")) return "9";
-      if (category.includes("10") || category.includes("tenth")) return "10";
-      if (category.includes("11") || category.includes("eleven")) return "11";
-      if (category.includes("12") || category.includes("twelve")) return "12";
-      if (category.includes("college")) return "college";
-
-      return category;
+      return category; // STRICT LEVEL SYSTEM
     }
 
     const cleanCategory = normalizeCategory(category);
@@ -31,15 +21,17 @@ export default async function handler(req, res) {
     function getPrompt(feature, category, content) {
 
       // ---------- CLASS 6–7 ----------
-      if (category === "6-7") {
+      if (category === "junior") {
         if (feature === "notes") {
           return `
+STRICT RULE: Do not exceed Class 6-8 level.
+
 Create simple school notes.
 
-Rules:
-- Very easy language
-- Short explanation
-- Paragraph format only
+Include:
+- Title
+- Simple explanation
+- Easy words only
 
 Topic:
 ${content}
@@ -48,11 +40,9 @@ ${content}
 
         if (feature === "questions") {
           return `
-Generate 5 simple questions.
+STRICT RULE: Do not exceed Class 6-8 level.
 
-Rules:
-- Very easy language
-- Basic What/Why questions
+Generate 5 very simple questions.
 
 Topic:
 ${content}
@@ -61,18 +51,15 @@ ${content}
       }
 
       // ---------- CLASS 8 ----------
-      if (category === "8") {
+      if (category === "focus") {
         if (feature === "notes") {
           return `
-Create structured notes.
+STRICT RULE: Do not exceed Class 8–9 level.
 
-Format:
-- Title
+Create structured notes:
 - Definition
 - Explanation
-- Process
-- Result
-- Revision Box
+- Key points
 
 Topic:
 ${content}
@@ -81,46 +68,9 @@ ${content}
 
         if (feature === "questions") {
           return `
-Create practice paper.
+STRICT RULE: Do not exceed Class 8–9 level.
 
-Section A: Short Questions  
-Section B: Case Study + MCQs  
-
-Topic:
-${content}
-`;
-        }
-      }
-
-      // ---------- CLASS 9 ----------
-      if (category === "9") {
-        if (feature === "notes") {
-          return `
-Create academic notes.
-
-Format:
-- Definition
-- Key Points
-- Important Terms
-- Process (Short)
-- Result
-- Revision Box
-
-Topic:
-${content}
-`;
-        }
-
-        if (feature === "questions") {
-          return `
-Create structured question paper.
-
-Sections:
-A: Basic
-B: Short
-C: Advanced
-D: Application
-E: Case Study + MCQs
+Create simple exam questions.
 
 Topic:
 ${content}
@@ -128,57 +78,17 @@ ${content}
         }
       }
 
-      // ---------- CLASS 10 ----------
-      if (category === "10") {
+      // ---------- CLASS 10–12 ----------
+      if (category === "exam") {
         if (feature === "notes") {
           return `
-Create full board-level notes.
+STRICT RULE: ONLY CBSE Class 10–12 NCERT level. DO NOT include NEET/JEE.
 
-Include:
+Create board-level notes:
 - Definition
 - Key Concepts
 - Important Terms
-- Full Process
-- Chemical Equation
-- Factors
-- Importance
-- Revision Box
-- Exam Notes
-
-Topic:
-${content}
-`;
-        }
-
-        if (feature === "questions") {
-          return `
-Create full board exam paper.
-
-Sections:
-A: Basic
-B: Concept
-C: Long Answer
-D: Application
-E: Case Study (MCQ)
-
-Topic:
-${content}
-`;
-        }
-      }
-
-      // ---------- CLASS 11 ----------
-      if (category === "11") {
-        if (feature === "notes") {
-          return `
-Create advanced concept notes.
-
-Include:
-- Definition
-- Light Reaction
-- Dark Reaction
-- Key Terms (ATP, NADPH)
-- Full Explanation
+- Process
 - Revision Box
 
 Topic:
@@ -188,46 +98,12 @@ ${content}
 
         if (feature === "questions") {
           return `
-Create 25-question paper.
+STRICT RULE: ONLY CBSE Class 10–12 level.
 
-Include:
+Create board exam paper:
 - Basic
-- Concept
-- Analytical
-- Advanced
-- Application
-- Case Study
-
-Topic:
-${content}
-`;
-        }
-      }
-
-      // ---------- CLASS 12 ----------
-      if (category === "12") {
-        if (feature === "notes") {
-          return `
-Create mastery-level notes.
-
-Include:
-- Deep Explanation
-- Mechanism
-- Important Terms
-- Exam Focus Points
-
-Topic:
-${content}
-`;
-        }
-
-        if (feature === "questions") {
-          return `
-Create advanced board + competitive paper.
-
-Include:
-- HOTS Questions
-- Application Based
+- Short Answer
+- Long Answer
 - Case Study
 
 Topic:
@@ -240,12 +116,10 @@ ${content}
       if (category === "college") {
         if (feature === "notes") {
           return `
-Create detailed academic notes.
-
-Include:
-- Biochemical Explanation
+Create advanced college-level notes:
+- Deep explanation
+- Technical terms
 - Mechanism
-- Technical Terms
 
 Topic:
 ${content}
@@ -254,12 +128,9 @@ ${content}
 
         if (feature === "questions") {
           return `
-Create advanced analytical paper.
-
-Include:
-- Conceptual Questions
-- Analytical Questions
-- Research-based Questions
+Create research-level questions:
+- Conceptual
+- Analytical
 - Case Study
 
 Topic:
@@ -281,12 +152,20 @@ ${content}
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "openrouter/auto",
-        temperature: 0.3,
+        model: "openai/gpt-4o-mini",
+        temperature: 0.2,
         messages: [
           {
             role: "system",
-            content: "You are a strict academic AI. Generate structured educational content based on school/college level. Do not add extra commentary or unrelated text. Follow format exactly."
+            content: `
+You are a STRICT CBSE academic assistant.
+
+RULES:
+- Follow class level exactly.
+- Do NOT exceed syllabus level.
+- No NEET/JEE content for exam level.
+- Keep answers simple and structured.
+`
           },
           {
             role: "user",
