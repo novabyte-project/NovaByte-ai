@@ -102,7 +102,7 @@ document.getElementById('btnSimplify').onclick = async () => {
     if (!notes.value.trim()) return alert("Please enter notes!");
 
     isLoading = true;
-    result.innerText = "Simplifying for " + classList.value + "... ⏳";
+    result.innerText = "Simplifying... ⏳";  // ✅ FIXED: Simple loading
 
     const categoryValue = mapClassToCategory(classList.value);
 
@@ -110,13 +110,13 @@ document.getElementById('btnSimplify').onclick = async () => {
         notes.value,
         "notes",
         categoryValue,
-        classList.value  // NEW: Send exact class
+        classList.value
     );
 
     isLoading = false;
 
     result.innerHTML = `
-        <h3 style="color:var(--teal)">Simplified Notes for ${classList.value}</h3>
+        <h3 style="color:var(--teal)">Simplified by Novabyte AI</h3>  <!-- ✅ FIXED: Original tagline -->
         <pre style="white-space:pre-wrap">${output}</pre>
     `;
 };
@@ -127,7 +127,7 @@ document.getElementById('btnQuestions').onclick = async () => {
     if (!notes.value.trim()) return alert("Please enter notes!");
 
     isLoading = true;
-    result.innerText = "Generating questions for " + classList.value + "... ⏳";
+    result.innerText = "Generating questions... ⏳";  // ✅ FIXED: Simple loading
 
     const categoryValue = mapClassToCategory(classList.value);
 
@@ -135,13 +135,13 @@ document.getElementById('btnQuestions').onclick = async () => {
         notes.value,
         "questions",
         categoryValue,
-        classList.value  // NEW: Send exact class
+        classList.value
     );
 
     isLoading = false;
 
     result.innerHTML = `
-        <h3 style="color:var(--orange)">Practice Paper for ${classList.value}</h3>
+        <h3 style="color:var(--orange)">AI Generated Questions</h3>  <!-- ✅ FIXED: Clean tagline -->
         <pre style="white-space:pre-wrap">${output}</pre>
     `;
 };
