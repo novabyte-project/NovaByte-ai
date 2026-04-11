@@ -27,32 +27,55 @@ export default async function handler(req, res) {
 
     const cleanCategory = normalizeCategory(category);
 
-    // ---------- PROMPT ENGINE ----------
+    // ---------- LANGUAGE LEVEL CONTROLLER (NEW!) ----------
+    function getLanguageInstruction(category) {
+      const levels = {
+        "6-7": "Use Class 6 language ONLY. VERY SIMPLE words. Short sentences. Like explaining to 11-year-old kid. NO big words!",
+        "8": "Use Class 8 language ONLY. Simple school words. Easy examples. NO Class 10 words!",
+        "9": "Use Class 9 language ONLY. School level words. Clear examples. NO board exam complexity!",
+        "10": "Use Class 10 CBSE language ONLY. Board exam words OK. NO Class 11/12 complexity!",
+        "11": "Use Class 11 language ONLY. Intermediate level. NO college terms!",
+        "12": "Use Class 12 CBSE language ONLY. Board level. NO college/engineering terms!",
+        "college": "College undergraduate level OK. Technical terms allowed."
+      };
+      return levels[category] || "Use simple Class 10 language";
+    }
+
+    // ---------- PROMPT ENGINE (ENHANCED) ----------
     function getPrompt(feature, category, content) {
+
+      const languageRule = getLanguageInstruction(category);
 
       // ---------- CLASS 6–7 ----------
       if (category === "6-7") {
         if (feature === "notes") {
           return `
-Create simple school notes.
+${languageRule}
+
+Create simple school notes for Class 6-7.
 
 Rules:
 - Very easy language
-- Short explanation
+- Short explanation  
 - Paragraph format only
 
 Topic:
 ${content}
+
+IMPORTANT: Use ONLY Class 6-7 level words and sentences!
 `;
         }
 
         if (feature === "questions") {
           return `
-Generate 5 simple questions.
+${languageRule}
+
+Generate 5 simple questions for Class 6-7.
 
 Rules:
 - Very easy language
 - Basic What/Why questions
+- Class 6 level only
 
 Topic:
 ${content}
@@ -64,11 +87,13 @@ ${content}
       if (category === "8") {
         if (feature === "notes") {
           return `
-Create structured notes.
+${languageRule}
+
+Create structured notes for Class 8.
 
 Format:
 - Title
-- Definition
+- Definition  
 - Explanation
 - Process
 - Result
@@ -76,12 +101,16 @@ Format:
 
 Topic:
 ${content}
+
+IMPORTANT: Class 8 level language ONLY!
 `;
         }
 
         if (feature === "questions") {
           return `
-Create practice paper.
+${languageRule}
+
+Create practice paper for Class 8.
 
 Section A: Short Questions  
 Section B: Case Study + MCQs  
@@ -96,7 +125,9 @@ ${content}
       if (category === "9") {
         if (feature === "notes") {
           return `
-Create academic notes.
+${languageRule}
+
+Create academic notes for Class 9.
 
 Format:
 - Definition
@@ -113,7 +144,9 @@ ${content}
 
         if (feature === "questions") {
           return `
-Create structured question paper.
+${languageRule}
+
+Create structured question paper for Class 9.
 
 Sections:
 A: Basic
@@ -132,7 +165,9 @@ ${content}
       if (category === "10") {
         if (feature === "notes") {
           return `
-Create full board-level notes.
+${languageRule}
+
+Create full board-level notes for Class 10 CBSE.
 
 Include:
 - Definition
@@ -152,7 +187,9 @@ ${content}
 
         if (feature === "questions") {
           return `
-Create full board exam paper.
+${languageRule}
+
+Create full board exam paper for Class 10.
 
 Sections:
 A: Basic
@@ -171,7 +208,9 @@ ${content}
       if (category === "11") {
         if (feature === "notes") {
           return `
-Create advanced concept notes.
+${languageRule}
+
+Create advanced concept notes for Class 11.
 
 Include:
 - Definition
@@ -188,7 +227,9 @@ ${content}
 
         if (feature === "questions") {
           return `
-Create 25-question paper.
+${languageRule}
+
+Create 25-question paper for Class 11.
 
 Include:
 - Basic
@@ -208,7 +249,9 @@ ${content}
       if (category === "12") {
         if (feature === "notes") {
           return `
-Create mastery-level notes.
+${languageRule}
+
+Create mastery-level notes for Class 12 CBSE.
 
 Include:
 - Deep Explanation
@@ -223,7 +266,9 @@ ${content}
 
         if (feature === "questions") {
           return `
-Create advanced board + competitive paper.
+${languageRule}
+
+Create advanced board + competitive paper for Class 12.
 
 Include:
 - HOTS Questions
@@ -240,7 +285,9 @@ ${content}
       if (category === "college") {
         if (feature === "notes") {
           return `
-Create detailed academic notes.
+${languageRule}
+
+Create detailed academic notes for College.
 
 Include:
 - Biochemical Explanation
@@ -254,7 +301,9 @@ ${content}
 
         if (feature === "questions") {
           return `
-Create advanced analytical paper.
+${languageRule}
+
+Create advanced analytical paper for College.
 
 Include:
 - Conceptual Questions
@@ -286,7 +335,7 @@ ${content}
         messages: [
           {
             role: "system",
-            content: "You are a strict academic AI. Generate structured educational content based on school/college level. Do not add extra commentary or unrelated text. Follow format exactly."
+            content: "You are a strict academic AI. Generate structured educational content based on EXACT class level specified. Use ONLY the language level instructed. Do not use higher-level words. Follow format exactly. NO extra commentary."
           },
           {
             role: "user",
