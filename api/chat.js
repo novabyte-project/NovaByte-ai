@@ -27,7 +27,7 @@ export default async function handler(req, res) {
 
     const cleanCategory = normalizeCategory(category);
 
-    // ---------- LANGUAGE LEVEL CONTROLLER (NEW!) ----------
+    // ---------- LANGUAGE LEVEL CONTROLLER ----------
     function getLanguageInstruction(category) {
       const levels = {
         "6-7": "Use Class 6 language ONLY. VERY SIMPLE words. Short sentences. Like explaining to 11-year-old kid. NO big words!",
@@ -41,9 +41,8 @@ export default async function handler(req, res) {
       return levels[category] || "Use simple Class 10 language";
     }
 
-    // ---------- PROMPT ENGINE (ENHANCED) ----------
+    // ---------- PROMPT ENGINE (MINIMAL FIX) ----------
     function getPrompt(feature, category, content) {
-
       const languageRule = getLanguageInstruction(category);
 
       // ---------- CLASS 6–7 ----------
@@ -52,17 +51,15 @@ export default async function handler(req, res) {
           return `
 ${languageRule}
 
-Create simple school notes for Class 6-7.
+Create simple school notes.
 
 Rules:
 - Very easy language
-- Short explanation  
+- Short explanation
 - Paragraph format only
 
 Topic:
 ${content}
-
-IMPORTANT: Use ONLY Class 6-7 level words and sentences!
 `;
         }
 
@@ -70,12 +67,16 @@ IMPORTANT: Use ONLY Class 6-7 level words and sentences!
           return `
 ${languageRule}
 
-Generate 5 simple questions for Class 6-7.
+Generate ONLY 8 SIMPLE QUESTIONS. NO intro/paper text.
 
-Rules:
-- Very easy language
-- Basic What/Why questions
-- Class 6 level only
+1. What is...?
+2. Why do...?
+3. Name 2 examples...
+4. True/False...
+5. Fill blanks...
+6. Match...
+7. Draw...
+8. Short answer...
 
 Topic:
 ${content}
@@ -89,11 +90,11 @@ ${content}
           return `
 ${languageRule}
 
-Create structured notes for Class 8.
+Create structured notes.
 
 Format:
 - Title
-- Definition  
+- Definition
 - Explanation
 - Process
 - Result
@@ -101,8 +102,6 @@ Format:
 
 Topic:
 ${content}
-
-IMPORTANT: Class 8 level language ONLY!
 `;
         }
 
@@ -110,10 +109,15 @@ IMPORTANT: Class 8 level language ONLY!
           return `
 ${languageRule}
 
-Create practice paper for Class 8.
+Generate ONLY 10 QUESTIONS. Numbered list only.
 
-Section A: Short Questions  
-Section B: Case Study + MCQs  
+1. [1M] Define...
+2. [1M] State...
+3. [2M] Explain...
+4. [2M] List...
+5. [3M] Describe...
+6. [3M] Difference...
+7-10. [Case Study]
 
 Topic:
 ${content}
@@ -127,7 +131,7 @@ ${content}
           return `
 ${languageRule}
 
-Create academic notes for Class 9.
+Create academic notes.
 
 Format:
 - Definition
@@ -146,14 +150,12 @@ ${content}
           return `
 ${languageRule}
 
-Create structured question paper for Class 9.
+Generate ONLY 12 QUESTIONS. Clean numbered format.
 
-Sections:
-A: Basic
-B: Short
-C: Advanced
-D: Application
-E: Case Study + MCQs
+1-3. [1 Mark]
+4-6. [2 Marks]
+7-9. [3 Marks]
+10-12. [Case Study]
 
 Topic:
 ${content}
@@ -167,7 +169,7 @@ ${content}
           return `
 ${languageRule}
 
-Create full board-level notes for Class 10 CBSE.
+Create full board-level notes.
 
 Include:
 - Definition
@@ -189,14 +191,13 @@ ${content}
           return `
 ${languageRule}
 
-Create full board exam paper for Class 10.
+Generate ONLY 15 QUESTIONS. Direct numbered list.
 
-Sections:
-A: Basic
-B: Concept
-C: Long Answer
-D: Application
-E: Case Study (MCQ)
+1-5. [1 Mark]
+6-10. [2 Marks]
+11-13. [3 Marks]
+14. [5 Marks]
+15. [Case Study]
 
 Topic:
 ${content}
@@ -210,7 +211,7 @@ ${content}
           return `
 ${languageRule}
 
-Create advanced concept notes for Class 11.
+Create advanced concept notes.
 
 Include:
 - Definition
@@ -229,15 +230,13 @@ ${content}
           return `
 ${languageRule}
 
-Create 25-question paper for Class 11.
+Generate ONLY 18 QUESTIONS. Clean format.
 
-Include:
-- Basic
-- Concept
-- Analytical
-- Advanced
-- Application
-- Case Study
+1-4. Basic [1M]
+5-8. Short [2M]
+9-12. Long [3M]
+13-16. Application [4M]
+17-18. Case Study
 
 Topic:
 ${content}
@@ -251,7 +250,7 @@ ${content}
           return `
 ${languageRule}
 
-Create mastery-level notes for Class 12 CBSE.
+Create mastery-level notes.
 
 Include:
 - Deep Explanation
@@ -268,12 +267,12 @@ ${content}
           return `
 ${languageRule}
 
-Create advanced board + competitive paper for Class 12.
+Generate ONLY 20 QUESTIONS. HOTS focus.
 
-Include:
-- HOTS Questions
-- Application Based
-- Case Study
+1-5. Knowledge
+6-10. Understanding
+11-15. Application
+16-20. Analysis + Case
 
 Topic:
 ${content}
@@ -287,7 +286,7 @@ ${content}
           return `
 ${languageRule}
 
-Create detailed academic notes for College.
+Create detailed academic notes.
 
 Include:
 - Biochemical Explanation
@@ -303,13 +302,12 @@ ${content}
           return `
 ${languageRule}
 
-Create advanced analytical paper for College.
+Generate ONLY 15 QUESTIONS. Analytical.
 
-Include:
-- Conceptual Questions
-- Analytical Questions
-- Research-based Questions
-- Case Study
+1-5. Conceptual
+6-10. Analytical
+11-13. Application
+14-15. Case Study
 
 Topic:
 ${content}
@@ -335,7 +333,7 @@ ${content}
         messages: [
           {
             role: "system",
-            content: "You are a strict academic AI. Generate structured educational content based on EXACT class level specified. Use ONLY the language level instructed. Do not use higher-level words. Follow format exactly. NO extra commentary."
+            content: "Strict Academic AI. Generate ONLY what's asked. QUESTIONS: Numbered list ONLY. NO intro/paper text. NO extra commentary. EXACT class level language."
           },
           {
             role: "user",
