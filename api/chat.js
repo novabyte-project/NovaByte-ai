@@ -10,7 +10,24 @@ export default async function handler(req, res) {
       return res.status(400).json({ reply: "Missing input" });
     }
 
-    // ---------- CLASS LOGIC ----------
+    // ---------- CATEGORY NORMALIZER ----------
+    function normalizeCategory(category) {
+      category = category.toLowerCase();
+
+      if (category.includes("6") || category.includes("7")) return "6-7";
+      if (category.includes("8")) return "8";
+      if (category.includes("9")) return "9";
+      if (category.includes("10") || category.includes("tenth")) return "10";
+      if (category.includes("11") || category.includes("eleven")) return "11";
+      if (category.includes("12") || category.includes("twelve")) return "12";
+      if (category.includes("college")) return "college";
+
+      return category;
+    }
+
+    const cleanCategory = normalizeCategory(category);
+
+    // ---------- PROMPT ENGINE ----------
     function getPrompt(feature, category, content) {
 
       // ---------- CLASS 6–7 ----------
@@ -20,9 +37,9 @@ export default async function handler(req, res) {
 Create simple school notes.
 
 Rules:
-- Very easy English
+- Very easy language
 - Short explanation
-- Paragraph format
+- Paragraph format only
 
 Topic:
 ${content}
@@ -35,7 +52,7 @@ Generate 5 simple questions.
 
 Rules:
 - Very easy language
-- Basic "What/Why" questions
+- Basic What/Why questions
 
 Topic:
 ${content}
@@ -64,13 +81,10 @@ ${content}
 
         if (feature === "questions") {
           return `
-Create a practice paper.
+Create practice paper.
 
-Format:
-Section A: 8 Questions  
-Section B: Case Study + 5 MCQs  
-
-Make it school level.
+Section A: Short Questions  
+Section B: Case Study + MCQs  
 
 Topic:
 ${content}
@@ -92,8 +106,6 @@ Format:
 - Result
 - Revision Box
 
-Highlight important terms.
-
 Topic:
 ${content}
 `;
@@ -101,13 +113,13 @@ ${content}
 
         if (feature === "questions") {
           return `
-Create a structured question paper.
+Create structured question paper.
 
 Sections:
-A: Basic (4)
-B: Short (4)
-C: Advanced (2)
-D: Application (2)
+A: Basic
+B: Short
+C: Advanced
+D: Application
 E: Case Study + MCQs
 
 Topic:
@@ -165,8 +177,8 @@ Include:
 - Definition
 - Light Reaction
 - Dark Reaction
-- Terms (ATP, NADPH)
-- Full explanation
+- Key Terms (ATP, NADPH)
+- Full Explanation
 - Revision Box
 
 Topic:
@@ -199,10 +211,10 @@ ${content}
 Create mastery-level notes.
 
 Include:
-- Deep explanation
+- Deep Explanation
 - Mechanism
-- Terms
-- Exam focus
+- Important Terms
+- Exam Focus Points
 
 Topic:
 ${content}
@@ -214,8 +226,8 @@ ${content}
 Create advanced board + competitive paper.
 
 Include:
-- HOTS
-- Application
+- HOTS Questions
+- Application Based
 - Case Study
 
 Topic:
@@ -231,9 +243,9 @@ ${content}
 Create detailed academic notes.
 
 Include:
-- Biochemical explanation
+- Biochemical Explanation
 - Mechanism
-- Technical terms
+- Technical Terms
 
 Topic:
 ${content}
@@ -245,10 +257,10 @@ ${content}
 Create advanced analytical paper.
 
 Include:
-- Concept
-- Analytical
-- Research-based
-- Case study
+- Conceptual Questions
+- Analytical Questions
+- Research-based Questions
+- Case Study
 
 Topic:
 ${content}
@@ -259,9 +271,9 @@ ${content}
       return content;
     }
 
-    const finalPrompt = getPrompt(feature, category, message);
+    const finalPrompt = getPrompt(feature, cleanCategory, message);
 
-    // ---------- API CALL ----------
+    // ---------- OPENROUTER API ----------
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -274,7 +286,7 @@ ${content}
         messages: [
           {
             role: "system",
-            content: "You are a strict educational AI. Follow format exactly. Do not add extra text."
+            content: "You are a strict academic AI. Generate structured educational content based on school/college level. Do not add extra commentary or unrelated text. Follow format exactly."
           },
           {
             role: "user",
