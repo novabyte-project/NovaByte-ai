@@ -70,7 +70,7 @@ IMPORTANT: Use ONLY Class 6-7 level words and sentences!
           return `
 ${languageRule}
 
-Generate 5 simple questions for Class 6-7.
+Generate **8** simple questions for Class 6-7.  // ← CHANGED 5 → 8
 
 Rules:
 - Very easy language
@@ -335,7 +335,7 @@ ${content}
         messages: [
           {
             role: "system",
-            content: "You are a strict academic AI. Generate structured educational content based on EXACT class level specified. Use ONLY the language level instructed. Do not use higher-level words. Follow format exactly. NO extra commentary."
+            content: "You are a strict academic AI. Generate structured educational content based on EXACT class level specified. Use ONLY the language level instructed. Follow format exactly. NO extra commentary."
           },
           {
             role: "user",
