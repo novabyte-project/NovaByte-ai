@@ -6,91 +6,315 @@ export default async function handler(req, res) {
 
     const { message, feature, category } = req.body;
 
-    // ✅ FIX 1: allow flexible input (UI safe)
-    if (!message) {
+    if (!message || !feature || !category) {
       return res.status(400).json({ reply: "Missing input" });
     }
 
     // ---------- CATEGORY NORMALIZER ----------
-    function normalizeCategory(category = "") {
+    function normalizeCategory(category) {
       category = category.toLowerCase();
 
       if (category.includes("6") || category.includes("7")) return "6-7";
       if (category.includes("8")) return "8";
       if (category.includes("9")) return "9";
-      if (category.includes("10")) return "10";
-      if (category.includes("11")) return "11";
-      if (category.includes("12")) return "12";
+      if (category.includes("10") || category.includes("tenth")) return "10";
+      if (category.includes("11") || category.includes("eleven")) return "11";
+      if (category.includes("12") || category.includes("twelve")) return "12";
       if (category.includes("college")) return "college";
 
-      return "10"; // default safe
+      return category;
     }
 
     const cleanCategory = normalizeCategory(category);
 
-    // ---------- LIGHT LANGUAGE CONTROL (NOT STRICT) ----------
+    // ---------- LANGUAGE LEVEL CONTROLLER (NEW!) ----------
     function getLanguageInstruction(category) {
       const levels = {
-        "6-7": "Use very simple and easy words.",
-        "8": "Use simple school-level language.",
-        "9": "Use clear school-level explanations.",
-        "10": "Use structured CBSE-style explanation.",
-        "11": "Use clear conceptual explanation.",
-        "12": "Use advanced but understandable explanation.",
-        "college": "Use professional but clear explanation."
+        "6-7": "Use Class 6 language ONLY. VERY SIMPLE words. Short sentences. Like explaining to 11-year-old kid. NO big words!",
+        "8": "Use Class 8 language ONLY. Simple school words. Easy examples. NO Class 10 words!",
+        "9": "Use Class 9 language ONLY. School level words. Clear examples. NO board exam complexity!",
+        "10": "Use Class 10 CBSE language ONLY. Board exam words OK. NO Class 11/12 complexity!",
+        "11": "Use Class 11 language ONLY. Intermediate level. NO college terms!",
+        "12": "Use Class 12 CBSE language ONLY. Board level. NO college/engineering terms!",
+        "college": "College undergraduate level OK. Technical terms allowed."
       };
-      return levels[category] || levels["10"];
+      return levels[category] || "Use simple Class 10 language";
     }
 
-    // ---------- PROMPT ENGINE (FIXED: NO OVER-RESTRICTION) ----------
+    // ---------- PROMPT ENGINE (ENHANCED) ----------
     function getPrompt(feature, category, content) {
+
       const languageRule = getLanguageInstruction(category);
 
-      // ✅ DEFAULT behavior (important fix)
-      if (!feature) {
-        return `
+      // ---------- CLASS 6–7 ----------
+      if (category === "6-7") {
+        if (feature === "notes") {
+          return `
 ${languageRule}
 
-Explain this topic clearly in a simple and structured way.
+Create simple school notes for Class 6-7.
+
+Rules:
+- Very easy language
+- Short explanation  
+- Paragraph format only
+
+Topic:
+${content}
+
+IMPORTANT: Use ONLY Class 6-7 level words and sentences!
+`;
+        }
+
+        if (feature === "questions") {
+          return `
+${languageRule}
+
+Generate 5 simple questions for Class 6-7.
+
+Rules:
+- Very easy language
+- Basic What/Why questions
+- Class 6 level only
 
 Topic:
 ${content}
 `;
+        }
       }
 
-      // ---------- NOTES ----------
-      if (feature === "notes") {
-        return `
+      // ---------- CLASS 8 ----------
+      if (category === "8") {
+        if (feature === "notes") {
+          return `
 ${languageRule}
 
-Create clear and easy-to-understand notes.
+Create structured notes for Class 8.
 
-Include:
-- Heading
-- Key points
-- Short explanation
-- Revision summary
+Format:
+- Title
+- Definition  
+- Explanation
+- Process
+- Result
+- Revision Box
+
+Topic:
+${content}
+
+IMPORTANT: Class 8 level language ONLY!
+`;
+        }
+
+        if (feature === "questions") {
+          return `
+${languageRule}
+
+Create practice paper for Class 8.
+
+Section A: Short Questions  
+Section B: Case Study + MCQs  
 
 Topic:
 ${content}
 `;
+        }
       }
 
-      // ---------- QUESTIONS ----------
-      if (feature === "questions") {
-        return `
+      // ---------- CLASS 9 ----------
+      if (category === "9") {
+        if (feature === "notes") {
+          return `
 ${languageRule}
 
-Generate good practice questions.
+Create academic notes for Class 9.
 
-Include:
-- Basic questions
-- Conceptual questions
-- Application questions
+Format:
+- Definition
+- Key Points
+- Important Terms
+- Process (Short)
+- Result
+- Revision Box
 
 Topic:
 ${content}
 `;
+        }
+
+        if (feature === "questions") {
+          return `
+${languageRule}
+
+Create structured question paper for Class 9.
+
+Sections:
+A: Basic
+B: Short
+C: Advanced
+D: Application
+E: Case Study + MCQs
+
+Topic:
+${content}
+`;
+        }
+      }
+
+      // ---------- CLASS 10 ----------
+      if (category === "10") {
+        if (feature === "notes") {
+          return `
+${languageRule}
+
+Create full board-level notes for Class 10 CBSE.
+
+Include:
+- Definition
+- Key Concepts
+- Important Terms
+- Full Process
+- Chemical Equation
+- Factors
+- Importance
+- Revision Box
+- Exam Notes
+
+Topic:
+${content}
+`;
+        }
+
+        if (feature === "questions") {
+          return `
+${languageRule}
+
+Create full board exam paper for Class 10.
+
+Sections:
+A: Basic
+B: Concept
+C: Long Answer
+D: Application
+E: Case Study (MCQ)
+
+Topic:
+${content}
+`;
+        }
+      }
+
+      // ---------- CLASS 11 ----------
+      if (category === "11") {
+        if (feature === "notes") {
+          return `
+${languageRule}
+
+Create advanced concept notes for Class 11.
+
+Include:
+- Definition
+- Light Reaction
+- Dark Reaction
+- Key Terms (ATP, NADPH)
+- Full Explanation
+- Revision Box
+
+Topic:
+${content}
+`;
+        }
+
+        if (feature === "questions") {
+          return `
+${languageRule}
+
+Create 25-question paper for Class 11.
+
+Include:
+- Basic
+- Concept
+- Analytical
+- Advanced
+- Application
+- Case Study
+
+Topic:
+${content}
+`;
+        }
+      }
+
+      // ---------- CLASS 12 ----------
+      if (category === "12") {
+        if (feature === "notes") {
+          return `
+${languageRule}
+
+Create mastery-level notes for Class 12 CBSE.
+
+Include:
+- Deep Explanation
+- Mechanism
+- Important Terms
+- Exam Focus Points
+
+Topic:
+${content}
+`;
+        }
+
+        if (feature === "questions") {
+          return `
+${languageRule}
+
+Create advanced board + competitive paper for Class 12.
+
+Include:
+- HOTS Questions
+- Application Based
+- Case Study
+
+Topic:
+${content}
+`;
+        }
+      }
+
+      // ---------- COLLEGE ----------
+      if (category === "college") {
+        if (feature === "notes") {
+          return `
+${languageRule}
+
+Create detailed academic notes for College.
+
+Include:
+- Biochemical Explanation
+- Mechanism
+- Technical Terms
+
+Topic:
+${content}
+`;
+        }
+
+        if (feature === "questions") {
+          return `
+${languageRule}
+
+Create advanced analytical paper for College.
+
+Include:
+- Conceptual Questions
+- Analytical Questions
+- Research-based Questions
+- Case Study
+
+Topic:
+${content}
+`;
+        }
       }
 
       return content;
@@ -106,12 +330,12 @@ ${content}
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "openai/gpt-4o-mini", // ✅ FIX 2: stable model
-        temperature: 0.4, // ✅ FIX 3: natural output
+        model: "openrouter/auto",
+        temperature: 0.3,
         messages: [
           {
             role: "system",
-            content: "You are a helpful teacher. Give clear, natural, and student-friendly explanations. Do not over-restrict or over-format."
+            content: "You are a strict academic AI. Generate structured educational content based on EXACT class level specified. Use ONLY the language level instructed. Do not use higher-level words. Follow format exactly. NO extra commentary."
           },
           {
             role: "user",
