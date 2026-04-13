@@ -6,12 +6,13 @@ export default async function handler(req, res) {
 
     const { message, feature, category } = req.body;
 
-    if (!message || !feature || !category) {
+    // ✅ FIX 1: allow flexible input (UI safe)
+    if (!message) {
       return res.status(400).json({ reply: "Missing input" });
     }
 
     // ---------- CATEGORY NORMALIZER ----------
-    function normalizeCategory(category) {
+    function normalizeCategory(category = "") {
       category = category.toLowerCase();
 
       if (category.includes("6") || category.includes("7")) return "6-7";
@@ -22,35 +23,70 @@ export default async function handler(req, res) {
       if (category.includes("12")) return "12";
       if (category.includes("college")) return "college";
 
-      return "10";
+      return "10"; // default safe
     }
 
     const cleanCategory = normalizeCategory(category);
 
-    // ---------- SIMPLE PROMPT (OLD STYLE OUTPUT) ----------
-    function buildPrompt(feature, category, content) {
+    // ---------- LIGHT LANGUAGE CONTROL (NOT STRICT) ----------
+    function getLanguageInstruction(category) {
+      const levels = {
+        "6-7": "Use very simple and easy words.",
+        "8": "Use simple school-level language.",
+        "9": "Use clear school-level explanations.",
+        "10": "Use structured CBSE-style explanation.",
+        "11": "Use clear conceptual explanation.",
+        "12": "Use advanced but understandable explanation.",
+        "college": "Use professional but clear explanation."
+      };
+      return levels[category] || levels["10"];
+    }
 
-      // 🔥 MAIN FIX: NO OVER-STRICT RULES
-      if (feature === "notes") {
+    // ---------- PROMPT ENGINE (FIXED: NO OVER-RESTRICTION) ----------
+    function getPrompt(feature, category, content) {
+      const languageRule = getLanguageInstruction(category);
+
+      // ✅ DEFAULT behavior (important fix)
+      if (!feature) {
         return `
-Explain this topic clearly for class ${category} students.
+${languageRule}
 
-Make it simple, easy to understand, and structured.
-Use headings and points.
+Explain this topic clearly in a simple and structured way.
 
 Topic:
 ${content}
 `;
       }
 
+      // ---------- NOTES ----------
+      if (feature === "notes") {
+        return `
+${languageRule}
+
+Create clear and easy-to-understand notes.
+
+Include:
+- Heading
+- Key points
+- Short explanation
+- Revision summary
+
+Topic:
+${content}
+`;
+      }
+
+      // ---------- QUESTIONS ----------
       if (feature === "questions") {
         return `
-Create good practice questions for class ${category} students.
+${languageRule}
+
+Generate good practice questions.
 
 Include:
 - Basic questions
 - Conceptual questions
-- Some application questions
+- Application questions
 
 Topic:
 ${content}
@@ -60,7 +96,7 @@ ${content}
       return content;
     }
 
-    const finalPrompt = buildPrompt(feature, cleanCategory, message);
+    const finalPrompt = getPrompt(feature, cleanCategory, message);
 
     // ---------- OPENROUTER API ----------
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -70,12 +106,12 @@ ${content}
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "openai/gpt-4o-mini",
-        temperature: 0.4, // 🔥 more natural
+        model: "openai/gpt-4o-mini", // ✅ FIX 2: stable model
+        temperature: 0.4, // ✅ FIX 3: natural output
         messages: [
           {
             role: "system",
-            content: "You are a helpful teacher. Give clear, natural, and easy explanations. Do not over-format or over-complicate."
+            content: "You are a helpful teacher. Give clear, natural, and student-friendly explanations. Do not over-restrict or over-format."
           },
           {
             role: "user",
