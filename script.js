@@ -6,7 +6,7 @@ const studentMapping = {
     college: ["College Level"] 
 };
 
-// Convert UI class → backend category (ENHANCED)
+// ---------- CATEGORY CONVERTER ----------
 function mapClassToCategory(cls) {
     cls = cls.toLowerCase().trim();
 
@@ -17,8 +17,8 @@ function mapClassToCategory(cls) {
     if (cls.includes("11")) return "11";
     if (cls.includes("12")) return "12";
     if (cls.includes("college")) return "college";
-    
-    return "10"; // Default fallback
+
+    return "10";
 }
 
 // ---------- API ----------
@@ -35,33 +35,23 @@ const modalText = document.getElementById('modalText');
 // ---------- LOADING LOCK ----------
 let isLoading = false;
 
-// ---------- API CALL (ENHANCED with class info) ----------
-async function getAIResponse(message, feature, category, className) {
+// ---------- API CALL ----------
+async function getAIResponse(message, feature, category) {
     try {
         const response = await fetch(API_URL, {
             method: "POST",
-            headers: { 
-                "Content-Type": "application/json" 
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 
                 message, 
                 feature, 
-                category,
-                className  // NEW: Send exact class name for better control
+                category
             })
         });
 
-        if (!response.ok) {
-            return "Server error: " + response.status;
-        }
+        if (!response.ok) return "Server error: " + response.status;
 
         const data = await response.json();
-
-        if (!data || !data.reply) {
-            return "No response from AI server";
-        }
-
-        return data.reply;
+        return data.reply || "No response from AI";
 
     } catch (error) {
         console.error("Fetch Error:", error);
@@ -82,17 +72,14 @@ window.onload = refreshClasses;
 
 // ---------- PREVIEW ----------
 document.getElementById('previewBtn').onclick = () => {
-    if(notes.value.trim() === "") {
-        alert("Please paste some notes first!");
-        return;
-    }
+    if (!notes.value.trim()) return alert("Please paste some notes first!");
 
     modalText.value = notes.value;
     modal.style.display = "block";
 };
 
 document.getElementById('closeModal').onclick = () => {
-    notes.value = modalText.value; 
+    notes.value = modalText.value;
     modal.style.display = "none";
 };
 
@@ -102,21 +89,20 @@ document.getElementById('btnSimplify').onclick = async () => {
     if (!notes.value.trim()) return alert("Please enter notes!");
 
     isLoading = true;
-    result.innerText = "Simplifying... ⏳";  // ✅ FIXED: Simple loading
+    result.innerText = "Simplifying... ⏳";
 
     const categoryValue = mapClassToCategory(classList.value);
 
     const output = await getAIResponse(
         notes.value,
         "notes",
-        categoryValue,
-        classList.value
+        categoryValue
     );
 
     isLoading = false;
 
     result.innerHTML = `
-        <h3 style="color:var(--teal)">Simplified by Novabyte AI</h3>  <!-- ✅ FIXED: Original tagline -->
+        <h3 style="color:var(--teal)">Simplified by Novabyte AI</h3>
         <pre style="white-space:pre-wrap">${output}</pre>
     `;
 };
@@ -127,21 +113,20 @@ document.getElementById('btnQuestions').onclick = async () => {
     if (!notes.value.trim()) return alert("Please enter notes!");
 
     isLoading = true;
-    result.innerText = "Generating questions... ⏳";  // ✅ FIXED: Simple loading
+    result.innerText = "Generating questions... ⏳";
 
     const categoryValue = mapClassToCategory(classList.value);
 
     const output = await getAIResponse(
         notes.value,
         "questions",
-        categoryValue,
-        classList.value
+        categoryValue
     );
 
     isLoading = false;
 
     result.innerHTML = `
-        <h3 style="color:var(--orange)">AI Generated Questions</h3>  <!-- ✅ FIXED: Clean tagline -->
+        <h3 style="color:var(--orange)">AI Generated Questions</h3>
         <pre style="white-space:pre-wrap">${output}</pre>
     `;
 };
@@ -150,5 +135,5 @@ document.getElementById('btnQuestions').onclick = async () => {
 document.getElementById('btnCopy').onclick = () => {
     const text = result.querySelector("pre")?.innerText || result.innerText;
     navigator.clipboard.writeText(text);
-    alert("✅ Copied to clipboard!");
+    alert("Copied!");
 };
