@@ -10,11 +10,14 @@ export default async function handler(req, res) {
       return res.status(400).json({ reply: "Missing input" });
     }
 
-    // ---------- CATEGORY NORMALIZER ----------
+    // ---------- CATEGORY NORMALIZER (UPDATED FOR CLASS 7) ----------
     function normalizeCategory(category) {
       category = category.toLowerCase();
 
-      if (category.includes("6") || category.includes("7")) return "6-7";
+      // CLASS 7 FIRST (NEW!)
+      if (category.includes("7")) return "7";
+      
+      if (category.includes("6")) return "6-7";  // Class 6 only now
       if (category.includes("8")) return "8";
       if (category.includes("9")) return "9";
       if (category.includes("10") || category.includes("tenth")) return "10";
@@ -27,10 +30,11 @@ export default async function handler(req, res) {
 
     const cleanCategory = normalizeCategory(category);
 
-    // ---------- LANGUAGE LEVEL CONTROLLER (NEW!) ----------
+    // ---------- LANGUAGE LEVEL CONTROLLER ----------
     function getLanguageInstruction(category) {
       const levels = {
         "6-7": "Use Class 6 language ONLY. VERY SIMPLE words. Short sentences. Like explaining to 11-year-old kid. NO big words!",
+        "7": "Use Class 7 language ONLY. VERY SIMPLE words. Short sentences. Like explaining to 12-year-old kid. NO big words!",  // NEW!
         "8": "Use Class 8 language ONLY. Simple school words. Easy examples. NO Class 10 words!",
         "9": "Use Class 9 language ONLY. School level words. Clear examples. NO board exam complexity!",
         "10": "Use Class 10 CBSE language ONLY. Board exam words OK. NO Class 11/12 complexity!",
@@ -41,12 +45,48 @@ export default async function handler(req, res) {
       return levels[category] || "Use simple Class 10 language";
     }
 
-    // ---------- PROMPT ENGINE (ENHANCED) ----------
+    // ---------- PROMPT ENGINE ----------
     function getPrompt(feature, category, content) {
-
       const languageRule = getLanguageInstruction(category);
 
-      // ---------- CLASS 6–7 ----------
+      // ---------- CLASS 7 ONLY (NEW!) ----------
+      if (category === "7") {
+        if (feature === "notes") {
+          return `
+${languageRule}
+
+Create simple school notes for Class 7.
+
+Rules:
+- Very easy language
+- Short explanation  
+- Paragraph format only
+
+Topic:
+${content}
+
+IMPORTANT: Use ONLY Class 7 level words and sentences!
+`;
+        }
+
+        if (feature === "questions") {
+          return `
+${languageRule}
+
+Generate **8** simple questions for Class 7.  // ← 8 QUESTIONS ONLY CLASS 7
+
+Rules:
+- Very easy language
+- Basic What/Why questions
+- Class 7 level only
+
+Topic:
+${content}
+`;
+        }
+      }
+
+      // ---------- CLASS 6–7 (NOW CLASS 6 ONLY) ----------
       if (category === "6-7") {
         if (feature === "notes") {
           return `
@@ -70,7 +110,7 @@ IMPORTANT: Use ONLY Class 6-7 level words and sentences!
           return `
 ${languageRule}
 
-Generate **8** simple questions for Class 6-7.  // ← CHANGED 5 → 8
+Generate 5 simple questions for Class 6-7.  // ← STAYS 5 (Class 6)
 
 Rules:
 - Very easy language
@@ -83,7 +123,7 @@ ${content}
         }
       }
 
-      // ---------- CLASS 8 ----------
+      // ---------- REST SAME (Class 8,9,10,11,12,College) ----------
       if (category === "8") {
         if (feature === "notes") {
           return `
@@ -121,7 +161,6 @@ ${content}
         }
       }
 
-      // ---------- CLASS 9 ----------
       if (category === "9") {
         if (feature === "notes") {
           return `
@@ -161,7 +200,6 @@ ${content}
         }
       }
 
-      // ---------- CLASS 10 ----------
       if (category === "10") {
         if (feature === "notes") {
           return `
@@ -204,7 +242,6 @@ ${content}
         }
       }
 
-      // ---------- CLASS 11 ----------
       if (category === "11") {
         if (feature === "notes") {
           return `
@@ -245,7 +282,6 @@ ${content}
         }
       }
 
-      // ---------- CLASS 12 ----------
       if (category === "12") {
         if (feature === "notes") {
           return `
@@ -281,7 +317,6 @@ ${content}
         }
       }
 
-      // ---------- COLLEGE ----------
       if (category === "college") {
         if (feature === "notes") {
           return `
