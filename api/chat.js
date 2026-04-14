@@ -10,13 +10,14 @@ export default async function handler(req, res) {
       return res.status(400).json({ reply: "Missing input" });
     }
 
-    // ---------- CATEGORY NORMALIZER (FIXED FOR CLASS 6/8) ----------
+    // ---------- CATEGORY NORMALIZER (FIXED: Class 6/8 SEPARATE) ----------
     function normalizeCategory(category) {
       category = category.toLowerCase();
 
-      if (category.includes("6")) return "6";      // ← CLASS 6 ONLY
+      // FIXED: Class 6 and 8 now separate
+      if (category.includes("6")) return "6";        // ← CLASS 6 ONLY (5 Qs)
       if (category.includes("7")) return "7";
-      if (category.includes("8")) return "8";      // ← CLASS 8 ONLY
+      if (category.includes("8")) return "8";        // ← CLASS 8 ONLY (8 Qs)
       if (category.includes("9")) return "9";
       if (category.includes("10") || category.includes("tenth")) return "10";
       if (category.includes("11") || category.includes("eleven")) return "11";
@@ -43,11 +44,11 @@ export default async function handler(req, res) {
       return levels[category] || "Use simple Class 10 language";
     }
 
-    // ---------- PROMPT ENGINE ----------
+    // ---------- PROMPT ENGINE (ONLY CLASS 6/8 QUESTIONS FIXED) ----------
     function getPrompt(feature, category, content) {
       const languageRule = getLanguageInstruction(category);
 
-      // ---------- CLASS 6 (5 QUESTIONS ONLY) ----------
+      // ---------- CLASS 6 (5 QUESTIONS ONLY - FIXED) ----------
       if (category === "6") {
         if (feature === "notes") {
           return `
@@ -71,18 +72,24 @@ IMPORTANT: Use ONLY Class 6 level words and sentences!
           return `
 ${languageRule}
 
-**CLASS 6: Generate EXACTLY 5 simple questions ONLY.**
+CLASS 6: **EXACTLY 5 QUESTIONS ONLY**
+
+**FORMAT:**
+1. 
+2. 
+3. 
+4. 
+5. 
 
 Rules:
-- VERY easy language
-- Basic What/Why questions  
+- Very easy language
+- Basic What/Why questions
 - Class 6 level only
-- **5 QUESTIONS MAXIMUM**
 
 Topic:
 ${content}
 
-**Output ONLY 5 questions. No more.**
+**FILL ONLY 1-5. NO EXTRA QUESTIONS.**
 `;
         }
       }
@@ -111,23 +118,20 @@ IMPORTANT: Use ONLY Class 7 level words and sentences!
           return `
 ${languageRule}
 
-**CLASS 7: Generate EXACTLY 8 simple questions ONLY.**
+Generate **8** simple questions for Class 7.
 
 Rules:
 - Very easy language
 - Basic What/Why questions
 - Class 7 level only
-- **8 QUESTIONS MAXIMUM**
 
 Topic:
 ${content}
-
-**Output ONLY 8 questions. No more.**
 `;
         }
       }
 
-      // ---------- CLASS 8 (8 QUESTIONS) ----------
+      // ---------- CLASS 8 (8 QUESTIONS - FIXED) ----------
       if (category === "8") {
         if (feature === "notes") {
           return `
@@ -154,22 +158,27 @@ IMPORTANT: Class 8 level language ONLY!
           return `
 ${languageRule}
 
-**CLASS 8: Generate EXACTLY 8 questions ONLY.**
+CLASS 8: **EXACTLY 8 QUESTIONS ONLY**
 
-Rules:
-- Class 8 language
-- **8 QUESTIONS MAXIMUM**
-- Structured format
+**FORMAT:**
+1. 
+2. 
+3. 
+4. 
+5. 
+6. 
+7. 
+8. 
 
 Topic:
 ${content}
 
-**Output ONLY 8 questions. No more.**
+**FILL ONLY 1-8. NO EXTRA QUESTIONS.**
 `;
         }
       }
 
-      // ---------- REST SAME (9,10,11,12,College) ----------
+      // ---------- ALL OTHER CLASSES (UNCHANGED) ----------
       if (category === "9") {
         if (feature === "notes") {
           return `
@@ -366,7 +375,7 @@ ${content}
 
     const finalPrompt = getPrompt(feature, cleanCategory, message);
 
-    // ---------- OPENROUTER API ----------
+    // ---------- OPENROUTER API (TEMPERATURE LOWERED) ----------
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -375,11 +384,11 @@ ${content}
       },
       body: JSON.stringify({
         model: "openrouter/auto",
-        temperature: 0.3,
+        temperature: 0.1,  // ← LOWER = MORE PRECISE
         messages: [
           {
             role: "system",
-            content: "You are a strict academic AI. Generate structured educational content based on EXACT class level specified. Use ONLY the language level instructed. Follow format exactly. NO extra commentary. RESPECT QUESTION COUNT LIMITS."
+            content: "You are a strict academic AI. Generate structured educational content based on EXACT class level specified. Use ONLY the language level instructed. **FOLLOW NUMBERED FORMAT EXACTLY. NO EXTRA QUESTIONS.**"
           },
           {
             role: "user",
