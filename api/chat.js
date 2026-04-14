@@ -10,13 +10,15 @@ export default async function handler(req, res) {
       return res.status(400).json({ reply: "Missing input" });
     }
 
-    // ---------- CATEGORY NORMALIZER (FIXED FOR CLASS 6/8) ----------
+    // ---------- CATEGORY NORMALIZER (UPDATED FOR CLASS 7) ----------
     function normalizeCategory(category) {
       category = category.toLowerCase();
 
-      if (category.includes("6")) return "6";      // ← CLASS 6 ONLY
+      // CLASS 7 FIRST (NEW!)
       if (category.includes("7")) return "7";
-      if (category.includes("8")) return "8";      // ← CLASS 8 ONLY
+      
+      if (category.includes("6")) return "6-7";  // Class 6 only now
+      if (category.includes("8")) return "8";
       if (category.includes("9")) return "9";
       if (category.includes("10") || category.includes("tenth")) return "10";
       if (category.includes("11") || category.includes("eleven")) return "11";
@@ -31,8 +33,8 @@ export default async function handler(req, res) {
     // ---------- LANGUAGE LEVEL CONTROLLER ----------
     function getLanguageInstruction(category) {
       const levels = {
-        "6": "Use Class 6 language ONLY. VERY SIMPLE words. Short sentences. Like explaining to 11-year-old kid. NO big words!",
-        "7": "Use Class 7 language ONLY. VERY SIMPLE words. Short sentences. Like explaining to 12-year-old kid. NO big words!",
+        "6-7": "Use Class 6 language ONLY. VERY SIMPLE words. Short sentences. Like explaining to 11-year-old kid. NO big words!",
+        "7": "Use Class 7 language ONLY. VERY SIMPLE words. Short sentences. Like explaining to 12-year-old kid. NO big words!",  // NEW!
         "8": "Use Class 8 language ONLY. Simple school words. Easy examples. NO Class 10 words!",
         "9": "Use Class 9 language ONLY. School level words. Clear examples. NO board exam complexity!",
         "10": "Use Class 10 CBSE language ONLY. Board exam words OK. NO Class 11/12 complexity!",
@@ -47,47 +49,7 @@ export default async function handler(req, res) {
     function getPrompt(feature, category, content) {
       const languageRule = getLanguageInstruction(category);
 
-      // ---------- CLASS 6 (5 QUESTIONS ONLY) ----------
-      if (category === "6") {
-        if (feature === "notes") {
-          return `
-${languageRule}
-
-Create simple school notes for Class 6.
-
-Rules:
-- Very easy language
-- Short explanation  
-- Paragraph format only
-
-Topic:
-${content}
-
-IMPORTANT: Use ONLY Class 6 level words and sentences!
-`;
-        }
-
-        if (feature === "questions") {
-          return `
-${languageRule}
-
-**CLASS 6: Generate EXACTLY 5 simple questions ONLY.**
-
-Rules:
-- VERY easy language
-- Basic What/Why questions  
-- Class 6 level only
-- **5 QUESTIONS MAXIMUM**
-
-Topic:
-${content}
-
-**Output ONLY 5 questions. No more.**
-`;
-        }
-      }
-
-      // ---------- CLASS 7 ----------
+      // ---------- CLASS 7 ONLY (NEW!) ----------
       if (category === "7") {
         if (feature === "notes") {
           return `
@@ -111,23 +73,57 @@ IMPORTANT: Use ONLY Class 7 level words and sentences!
           return `
 ${languageRule}
 
-**CLASS 7: Generate EXACTLY 8 simple questions ONLY.**
+Generate **8** simple questions for Class 7.  // ← 8 QUESTIONS ONLY CLASS 7
 
 Rules:
 - Very easy language
 - Basic What/Why questions
 - Class 7 level only
-- **8 QUESTIONS MAXIMUM**
 
 Topic:
 ${content}
-
-**Output ONLY 8 questions. No more.**
 `;
         }
       }
 
-      // ---------- CLASS 8 (8 QUESTIONS) ----------
+      // ---------- CLASS 6–7 (NOW CLASS 6 ONLY) ----------
+      if (category === "6-7") {
+        if (feature === "notes") {
+          return `
+${languageRule}
+
+Create simple school notes for Class 6-7.
+
+Rules:
+- Very easy language
+- Short explanation  
+- Paragraph format only
+
+Topic:
+${content}
+
+IMPORTANT: Use ONLY Class 6-7 level words and sentences!
+`;
+        }
+
+        if (feature === "questions") {
+          return `
+${languageRule}
+
+Generate 5 simple questions for Class 6-7.  // ← STAYS 5 (Class 6)
+
+Rules:
+- Very easy language
+- Basic What/Why questions
+- Class 6 level only
+
+Topic:
+${content}
+`;
+        }
+      }
+
+      // ---------- REST SAME (Class 8,9,10,11,12,College) ----------
       if (category === "8") {
         if (feature === "notes") {
           return `
@@ -154,22 +150,17 @@ IMPORTANT: Class 8 level language ONLY!
           return `
 ${languageRule}
 
-**CLASS 8: Generate EXACTLY 8 questions ONLY.**
+Create practice paper for Class 8.
 
-Rules:
-- Class 8 language
-- **8 QUESTIONS MAXIMUM**
-- Structured format
+Section A: Short Questions  
+Section B: Case Study + MCQs  
 
 Topic:
 ${content}
-
-**Output ONLY 8 questions. No more.**
 `;
         }
       }
 
-      // ---------- REST SAME (9,10,11,12,College) ----------
       if (category === "9") {
         if (feature === "notes") {
           return `
@@ -379,7 +370,7 @@ ${content}
         messages: [
           {
             role: "system",
-            content: "You are a strict academic AI. Generate structured educational content based on EXACT class level specified. Use ONLY the language level instructed. Follow format exactly. NO extra commentary. RESPECT QUESTION COUNT LIMITS."
+            content: "You are a strict academic AI. Generate structured educational content based on EXACT class level specified. Use ONLY the language level instructed. Follow format exactly. NO extra commentary."
           },
           {
             role: "user",
