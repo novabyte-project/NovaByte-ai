@@ -146,7 +146,7 @@ function handleSend() {
     const btn = document.querySelector('.send-icon-btn');
     btn.innerHTML = '<span style="font-size: 13px;">Sending...</span>';
 
-    // FIXED ONLY: API ROUTE + RESPONSE HANDLING
+    // FIXED ONLY: correct API route
     fetch("/api/contact", {
         method: "POST",
         headers: {
