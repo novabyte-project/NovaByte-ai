@@ -138,7 +138,7 @@ document.getElementById('btnCopy').onclick = () => {
     alert("Copied!");
 };
 
-// ===== FOOTER CONTACT JS (UPDATED ONLY HERE) =====
+// ===== FOOTER CONTACT JS (FIXED ONLY HERE) =====
 function handleSend() {
     const email = document.getElementById('userEmail').value;
     const message = document.getElementById('userMessage').value;
@@ -146,8 +146,8 @@ function handleSend() {
     const btn = document.querySelector('.send-icon-btn');
     btn.innerHTML = '<span style="font-size: 13px;">Sending...</span>';
 
-    // ✅ ONLY CHANGE DONE HERE
-    fetch("/api/send", {
+    // FIXED ONLY: API ROUTE + RESPONSE HANDLING
+    fetch("/api/contact", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -157,7 +157,7 @@ function handleSend() {
             message: message
         })
     })
-    .then(res => res.text())
+    .then(res => res.json())
     .then(data => {
         btn.innerHTML = '<span style="font-size: 13px;">Sent!</span> <i class="fas fa-check"></i>';
 
@@ -166,7 +166,7 @@ function handleSend() {
             btn.innerHTML = '<span style="font-size: 13px;">Send Message</span> <i class="fas fa-paper-plane"></i>';
         }, 1500);
 
-        alert(data);
+        alert(data.message);
     })
     .catch(err => {
         alert("Error sending message");
