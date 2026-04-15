@@ -146,7 +146,8 @@ function handleSend() {
     const btn = document.querySelector('.send-icon-btn');
     btn.innerHTML = '<span style="font-size: 13px;">Sending...</span>';
 
-    fetch("http://localhost:5000/send", {
+    // ✅ ONLY CHANGE DONE HERE
+    fetch("/api/send", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
