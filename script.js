@@ -137,3 +137,47 @@ document.getElementById('btnCopy').onclick = () => {
     navigator.clipboard.writeText(text);
     alert("Copied!");
 };
+
+// ===== FOOTER CONTACT JS (UPDATED ONLY HERE) =====
+function handleSend() {
+    const email = document.getElementById('userEmail').value;
+    const message = document.getElementById('userMessage').value;
+
+    const btn = document.querySelector('.send-icon-btn');
+    btn.innerHTML = '<span style="font-size: 13px;">Sending...</span>';
+
+    fetch("http://localhost:5000/send", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            email: email,
+            message: message
+        })
+    })
+    .then(res => res.text())
+    .then(data => {
+        btn.innerHTML = '<span style="font-size: 13px;">Sent!</span> <i class="fas fa-check"></i>';
+
+        setTimeout(() => {
+            document.getElementById('contactBox').style.display = 'none';
+            btn.innerHTML = '<span style="font-size: 13px;">Send Message</span> <i class="fas fa-paper-plane"></i>';
+        }, 1500);
+
+        alert(data);
+    })
+    .catch(err => {
+        alert("Error sending message");
+        console.log(err);
+
+        btn.innerHTML = '<span style="font-size: 13px;">Send Message</span> <i class="fas fa-paper-plane"></i>';
+    });
+}
+
+window.onclick = function(event) {
+    var modal = document.getElementById('contactBox');
+    if (event.target == modal) { 
+        modal.style.display = 'none'; 
+    }
+}
