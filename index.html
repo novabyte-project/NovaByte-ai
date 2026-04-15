@@ -92,6 +92,39 @@
         </div>
     </div>
 
+    <!-- ===== EXACT FOOTER + CONTACT MODAL ===== -->
+    <footer class="footer">
+        <div class="footer-brand">© 2026 NovaByte AI | All Rights Reserved.</div>
+        <div class="footer-disclaimer">Always verify AI-generated content for 100% accuracy.</div>
+        <button class="contact-trigger" onclick="document.getElementById('contactBox').style.display='block'">
+            <i class="fas fa-envelope"></i> Contact Us
+        </button>
+    </footer>
+
+    <div id="contactBox" class="contact-modal">
+        <div class="contact-content">
+            <span class="close-contact" onclick="document.getElementById('contactBox').style.display='none'">&times;</span>
+            <h2>Get in Touch</h2>
+            <p>Have an idea or facing an issue? Send us a direct message and we'll help you out.</p>
+            
+            <div class="form-group">
+                <input type="email" id="userEmail" placeholder="Your email address" class="contact-input">
+            </div>
+            <div class="form-group">
+                <textarea id="userMessage" placeholder="How can we help you?" class="contact-textarea"></textarea>
+            </div>
+
+            <div class="send-container">
+                <button onclick="handleSend()" class="send-icon-btn">
+                    <span style="font-size: 13px; font-family: 'Plus Jakarta Sans';">Send Message</span>
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+
+            <p class="contact-email">novabyte888@gmail.com</p>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
