@@ -1,17 +1,19 @@
 import nodemailer from "nodemailer";
 
 export default async function handler(req, res) {
+    res.setHeader("Content-Type", "application/json");
+
     if (req.method !== "POST") {
         return res.status(405).json({ message: "Method not allowed" });
     }
 
-    const { email, message } = req.body;
-
-    if (!email || !message) {
-        return res.status(400).json({ message: "Missing fields" });
-    }
-
     try {
+        const { email, message } = req.body;
+
+        if (!email || !message) {
+            return res.status(400).json({ message: "Missing email or message" });
+        }
+
         const transporter = nodemailer.createTransport({
             service: "gmail",
             auth: {
@@ -20,14 +22,12 @@ export default async function handler(req, res) {
             }
         });
 
-        const mailOptions = {
-            from: email,
+        await transporter.sendMail({
+            from: process.env.EMAIL_USER,
             to: process.env.EMAIL_USER,
-            subject: "New Contact Form Message",
-            text: `Email: ${email}\n\nMessage: ${message}`
-        };
-
-        await transporter.sendMail(mailOptions);
+            subject: "Contact Form Message",
+            text: `From: ${email}\n\nMessage:\n${message}`
+        });
 
         return res.status(200).json({
             message: "Email sent successfully"
