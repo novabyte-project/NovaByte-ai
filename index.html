@@ -6,14 +6,12 @@
     <title>Novabyte AI | Student Portalz</title>
     <link rel="stylesheet" href="style.css">
 
-    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
-    <!-- HEADER (OLD - CLEAN) -->
     <header class="header">
         <div class="logo-container">
             <h1 class="brand-name">NOVABYTE <span class="ai-text">AI</span></h1>
@@ -22,10 +20,9 @@
 
     <main class="container">
 
-        <!-- DROPDOWNS (SIDE BY SIDE + EMOJI) -->
         <div class="controls">
             <div class="dropdown-group">
-                <label>Category</label>
+                <label><i class="fas fa-users" style="margin-right: 8px;"></i>Category</label>
                 <select id="categorySelect">
                     <option value="junior">👶 Junior Learners</option>
                     <option value="focus">📚 Focus Scholars</option>
@@ -35,12 +32,11 @@
             </div>
 
             <div class="dropdown-group">
-                <label>Class / Level</label>
+                <label><i class="fas fa-user-graduate" style="margin-right: 8px;"></i>Class / Level</label>
                 <select id="classSelect"></select>
             </div>
         </div>
 
-        <!-- NOTES BOX (OLD SIMPLE) -->
         <div class="input-wrapper">
             <div class="box-header">
                 <span><i class="fas fa-pen-nib"></i> Your Study Notes</span>
@@ -52,7 +48,6 @@
             <textarea id="studentNotes" placeholder="Paste your notes here..."></textarea>
         </div>
 
-        <!-- BUTTONS (OLD SIDE BY SIDE) -->
         <div class="button-grid">
             <button id="btnSimplify" class="btn btn-teal">
                 Simplify Notes
@@ -63,7 +58,6 @@
             </button>
         </div>
 
-        <!-- RESULT BOX (OLD + NEW COPY BUTTON) -->
         <div class="result-wrapper">
             <div class="box-header">
                 <span><i class="fas fa-magic"></i> AI Generated Result</span>
@@ -80,7 +74,6 @@
 
     </main>
 
-    <!-- PREVIEW MODAL (NEW - KEEP) -->
     <div id="previewModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -92,7 +85,6 @@
         </div>
     </div>
 
-    <!-- ===== EXACT FOOTER + CONTACT MODAL ===== -->
     <footer class="footer">
         <div class="footer-brand">© 2026 NovaByte AI | All Rights Reserved.</div>
         <div class="footer-disclaimer">Always verify AI-generated content for 100% accuracy.</div>
