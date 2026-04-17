@@ -59,11 +59,21 @@ body {
     margin-bottom: 25px; 
 }
 
+/* UPDATED FOR STRICT PURE WHITE */
 .dropdown-group label {
-    display: block;
-    margin-bottom: 6px;
-    font-size: 0.9rem;
-    color: var(--text-dim);
+    display: flex !important;
+    align-items: center !important;
+    margin-bottom: 8px !important;
+    font-size: 0.95rem !important; /* Thoda sa size badhaya taaki white aur chamke */
+    color: #ffffff !important; /* Strict Pure White */
+    font-weight: 700 !important; /* Thoda aur bold */
+    text-shadow: 0 0 2px rgba(255,255,255,0.2); /* Halki si chamak */
+}
+
+.dropdown-group label i {
+    color: #ffffff !important; /* Icon strictly white */
+    margin-right: 10px !important;
+    font-size: 1.1rem !important;
 }
 
 select { 
