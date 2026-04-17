@@ -37,6 +37,11 @@ let isLoading = false;
 
 // ---------- API CALL ----------
 async function getAIResponse(message, feature, category) {
+    // 🌐 INTERNET CHECK BEFORE FETCH
+    if (!navigator.onLine) {
+        return "NETWORK_OFFLINE";
+    }
+
     try {
         const response = await fetch(API_URL, {
             method: "POST",
@@ -101,6 +106,17 @@ document.getElementById('btnSimplify').onclick = async () => {
 
     isLoading = false;
 
+    // 🌐 OFFLINE HANDLING
+    if (output === "NETWORK_OFFLINE") {
+        result.innerHTML = `
+            <div style="color:#ea580c; padding:10px; border:1px solid #ea580c; border-radius:8px;">
+                <h4 style="margin-bottom:5px;">⚠️ Network Offline</h4>
+                <p style="font-size:13px; color:var(--text-dim);">Please check your internet connection and try again.</p>
+            </div>
+        `;
+        return;
+    }
+
     result.innerHTML = `
         <h3 style="color:var(--teal)">Simplified by Novabyte AI</h3>
         <pre style="white-space:pre-wrap">${output}</pre>
@@ -125,6 +141,17 @@ document.getElementById('btnQuestions').onclick = async () => {
 
     isLoading = false;
 
+    // 🌐 OFFLINE HANDLING
+    if (output === "NETWORK_OFFLINE") {
+        result.innerHTML = `
+            <div style="color:#ea580c; padding:10px; border:1px solid #ea580c; border-radius:8px;">
+                <h4 style="margin-bottom:5px;">⚠️ Network Offline</h4>
+                <p style="font-size:13px; color:var(--text-dim);">Internet connection required to generate questions.</p>
+            </div>
+        `;
+        return;
+    }
+
     result.innerHTML = `
         <h3 style="color:var(--orange)">AI Generated Questions</h3>
         <pre style="white-space:pre-wrap">${output}</pre>
@@ -138,15 +165,20 @@ document.getElementById('btnCopy').onclick = () => {
     alert("Copied!");
 };
 
-// ===== FOOTER CONTACT JS (FIXED ONLY HERE) =====
+// ===== FOOTER CONTACT JS (WITH INTERNET CHECK) =====
 function handleSend() {
+    // 🌐 CONTACT FORM INTERNET CHECK
+    if (!navigator.onLine) {
+        alert("Cannot send message. You are offline! 🌐");
+        return;
+    }
+
     const email = document.getElementById('userEmail').value;
     const message = document.getElementById('userMessage').value;
 
     const btn = document.querySelector('.send-icon-btn');
     btn.innerHTML = '<span style="font-size: 13px;">Sending...</span>';
 
-    // FIXED ONLY: correct API route
     fetch("/api/contact", {
         method: "POST",
         headers: {
@@ -169,9 +201,8 @@ function handleSend() {
         alert(data.message);
     })
     .catch(err => {
-        alert("Error sending message");
+        alert("Error sending message. Check connection.");
         console.log(err);
-
         btn.innerHTML = '<span style="font-size: 13px;">Send Message</span> <i class="fas fa-paper-plane"></i>';
     });
 }
