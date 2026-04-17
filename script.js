@@ -9,6 +9,7 @@ const studentMapping = {
 // ---------- CATEGORY CONVERTER ----------
 function mapClassToCategory(cls) {
     cls = cls.toLowerCase().trim();
+
     if (cls.includes("6") || cls.includes("7")) return "6-7";
     if (cls.includes("8")) return "8";
     if (cls.includes("9")) return "9";
@@ -16,6 +17,7 @@ function mapClassToCategory(cls) {
     if (cls.includes("11")) return "11";
     if (cls.includes("12")) return "12";
     if (cls.includes("college")) return "college";
+
     return "10";
 }
 
@@ -30,31 +32,44 @@ const result = document.getElementById('resultBox');
 const modal = document.getElementById('previewModal');
 const modalText = document.getElementById('modalText');
 
+// ---------- LOADING LOCK ----------
 let isLoading = false;
 
 // ---------- API CALL ----------
 async function getAIResponse(message, feature, category) {
-    if (!navigator.onLine) return "NETWORK_OFFLINE";
+    if (!navigator.onLine) {
+        return "NETWORK_OFFLINE";
+    }
+
     try {
         const response = await fetch(API_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ message, feature, category })
+            body: JSON.stringify({ 
+                message, 
+                feature, 
+                category
+            })
         });
+
         if (!response.ok) return "Server error: " + response.status;
+
         const data = await response.json();
         return data.reply || "No response from AI";
+
     } catch (error) {
         console.error("Fetch Error:", error);
         return "Error ❌: " + error.message;
     }
 }
 
-// ---------- DYNAMIC NETWORK ERROR ----------
+// ---------- DYNAMIC NETWORK ERROR (OPTION 1 WITH EMOJI) ----------
 function showNetworkError(type) {
+    // Simplify (notes) = Teal | Questions = Orange
     const activeColor = (type === 'notes') ? '#0d9488' : '#ea580c';
+    
     result.innerHTML = `
-        <div class="result-fade-in" style="color:${activeColor}; padding:15px; border:1px solid ${activeColor}; border-radius:12px; background: rgba(0, 0, 0, 0.1); text-align:center;">
+        <div style="color:${activeColor}; padding:15px; border:1px solid ${activeColor}; border-radius:12px; background: rgba(0, 0, 0, 0.1); text-align:center;">
             <h4 style="margin-bottom:8px; display:flex; align-items:center; justify-content:center; gap:10px; color:${activeColor};">
                 ⚠️ Connection Lost
             </h4>
@@ -68,17 +83,22 @@ function showNetworkError(type) {
 // ---------- CLASS DROPDOWN ----------
 function refreshClasses() {
     const items = studentMapping[category.value];
-    classList.innerHTML = items.map(item => `<option value="${item}">${item}</option>`).join('');
+    classList.innerHTML = items
+        .map(item => `<option value="${item}">${item}</option>`)
+        .join('');
 }
+
 category.addEventListener('change', refreshClasses);
 window.onload = refreshClasses;
 
 // ---------- PREVIEW ----------
 document.getElementById('previewBtn').onclick = () => {
     if (!notes.value.trim()) return alert("Please paste some notes first!");
+
     modalText.value = notes.value;
     modal.style.display = "block";
 };
+
 document.getElementById('closeModal').onclick = () => {
     notes.value = modalText.value;
     modal.style.display = "none";
@@ -88,18 +108,24 @@ document.getElementById('closeModal').onclick = () => {
 document.getElementById('btnSimplify').onclick = async () => {
     if (isLoading) return;
     if (!notes.value.trim()) return alert("Please enter notes!");
+
     result.innerHTML = ''; 
     isLoading = true;
     result.innerText = "Simplifying... ⏳";
+
     const categoryValue = mapClassToCategory(classList.value);
     const output = await getAIResponse(notes.value, "notes", categoryValue);
+
     isLoading = false;
-    if (output === "NETWORK_OFFLINE") { showNetworkError('notes'); return; }
+
+    if (output === "NETWORK_OFFLINE") {
+        showNetworkError('notes');
+        return;
+    }
+
     result.innerHTML = `
-        <div class="result-fade-in">
-            <h3 style="color:var(--teal); margin-bottom:10px;">Simplified by Novabyte AI</h3>
-            <pre style="white-space:pre-wrap">${output}</pre>
-        </div>
+        <h3 style="color:var(--teal); margin-bottom:10px;">Simplified by Novabyte AI</h3>
+        <pre style="white-space:pre-wrap">${output}</pre>
     `;
 };
 
@@ -107,18 +133,24 @@ document.getElementById('btnSimplify').onclick = async () => {
 document.getElementById('btnQuestions').onclick = async () => {
     if (isLoading) return;
     if (!notes.value.trim()) return alert("Please enter notes!");
+
     result.innerHTML = ''; 
     isLoading = true;
     result.innerText = "Generating questions... ⏳";
+
     const categoryValue = mapClassToCategory(classList.value);
     const output = await getAIResponse(notes.value, "questions", categoryValue);
+
     isLoading = false;
-    if (output === "NETWORK_OFFLINE") { showNetworkError('questions'); return; }
+
+    if (output === "NETWORK_OFFLINE") {
+        showNetworkError('questions');
+        return;
+    }
+
     result.innerHTML = `
-        <div class="result-fade-in">
-            <h3 style="color:var(--orange); margin-bottom:10px;">AI Generated Questions</h3>
-            <pre style="white-space:pre-wrap">${output}</pre>
-        </div>
+        <h3 style="color:var(--orange); margin-bottom:10px;">AI Generated Questions</h3>
+        <pre style="white-space:pre-wrap">${output}</pre>
     `;
 };
 
@@ -129,17 +161,23 @@ document.getElementById('btnCopy').onclick = () => {
     alert("Copied!");
 };
 
-// ---------- FOOTER CONTACT ----------
+// ===== FOOTER CONTACT JS =====
 function handleSend() {
-    if (!navigator.onLine) { alert("Connection Lost: Please check your internet settings."); return; }
+    if (!navigator.onLine) {
+        alert("Connection Lost: Please check your internet settings.");
+        return;
+    }
+
     const email = document.getElementById('userEmail').value;
     const message = document.getElementById('userMessage').value;
     const btn = document.querySelector('.send-icon-btn');
+    
     btn.innerHTML = '<span style="font-size: 13px;">Sending...</span>';
+
     fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, message })
+        body: JSON.stringify({ email: email, message: message })
     })
     .then(res => res.json())
     .then(data => {
@@ -155,7 +193,8 @@ function handleSend() {
         btn.innerHTML = '<span style="font-size: 13px;">Send Message</span> <i class="fas fa-paper-plane"></i>';
     });
 }
+
 window.onclick = function(event) {
     var modal = document.getElementById('contactBox');
-    if (event.target == modal) modal.style.display = 'none';
+    if (event.target == modal) { modal.style.display = 'none'; }
 }
