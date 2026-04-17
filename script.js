@@ -64,6 +64,20 @@ async function getAIResponse(message, feature, category) {
     }
 }
 
+// ---------- SHARED NETWORK ERROR UI (OPTION 1) ----------
+function showNetworkError() {
+    result.innerHTML = `
+        <div style="color:#ea580c; padding:15px; border:1px solid #ea580c; border-radius:12px; background: rgba(234, 88, 12, 0.05); text-align:center;">
+            <h4 style="margin-bottom:8px; display:flex; align-items:center; justify-content:center; gap:10px;">
+                <i class="fas fa-wifi-slash"></i> Connection Lost
+            </h4>
+            <p style="font-size:13px; color:var(--text-dim); line-height:1.5;">
+                Please check your internet settings to continue with NovaByte AI.
+            </p>
+        </div>
+    `;
+}
+
 // ---------- CLASS DROPDOWN ----------
 function refreshClasses() {
     const items = studentMapping[category.value];
@@ -93,6 +107,8 @@ document.getElementById('btnSimplify').onclick = async () => {
     if (isLoading) return;
     if (!notes.value.trim()) return alert("Please enter notes!");
 
+    // 🧹 Purana kachra saaf karo
+    result.innerHTML = ''; 
     isLoading = true;
     result.innerText = "Simplifying... ⏳";
 
@@ -108,17 +124,12 @@ document.getElementById('btnSimplify').onclick = async () => {
 
     // 🌐 OFFLINE HANDLING
     if (output === "NETWORK_OFFLINE") {
-        result.innerHTML = `
-            <div style="color:#ea580c; padding:10px; border:1px solid #ea580c; border-radius:8px;">
-                <h4 style="margin-bottom:5px;">⚠️ Network Offline</h4>
-                <p style="font-size:13px; color:var(--text-dim);">Please check your internet connection and try again.</p>
-            </div>
-        `;
+        showNetworkError();
         return;
     }
 
     result.innerHTML = `
-        <h3 style="color:var(--teal)">Simplified by Novabyte AI</h3>
+        <h3 style="color:var(--teal); margin-bottom:10px;">Simplified by Novabyte AI</h3>
         <pre style="white-space:pre-wrap">${output}</pre>
     `;
 };
@@ -128,6 +139,8 @@ document.getElementById('btnQuestions').onclick = async () => {
     if (isLoading) return;
     if (!notes.value.trim()) return alert("Please enter notes!");
 
+    // 🧹 Purana kachra saaf karo
+    result.innerHTML = ''; 
     isLoading = true;
     result.innerText = "Generating questions... ⏳";
 
@@ -143,17 +156,12 @@ document.getElementById('btnQuestions').onclick = async () => {
 
     // 🌐 OFFLINE HANDLING
     if (output === "NETWORK_OFFLINE") {
-        result.innerHTML = `
-            <div style="color:#ea580c; padding:10px; border:1px solid #ea580c; border-radius:8px;">
-                <h4 style="margin-bottom:5px;">⚠️ Network Offline</h4>
-                <p style="font-size:13px; color:var(--text-dim);">Internet connection required to generate questions.</p>
-            </div>
-        `;
+        showNetworkError();
         return;
     }
 
     result.innerHTML = `
-        <h3 style="color:var(--orange)">AI Generated Questions</h3>
+        <h3 style="color:var(--orange); margin-bottom:10px;">AI Generated Questions</h3>
         <pre style="white-space:pre-wrap">${output}</pre>
     `;
 };
@@ -165,11 +173,10 @@ document.getElementById('btnCopy').onclick = () => {
     alert("Copied!");
 };
 
-// ===== FOOTER CONTACT JS (WITH INTERNET CHECK) =====
+// ===== FOOTER CONTACT JS =====
 function handleSend() {
-    // 🌐 CONTACT FORM INTERNET CHECK
     if (!navigator.onLine) {
-        alert("Cannot send message. You are offline! 🌐");
+        alert("Connection Lost: Please check your internet settings.");
         return;
     }
 
