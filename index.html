@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Novabyte AI | Student Portalz</title>
     <link rel="stylesheet" href="style.css">
+
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -17,6 +19,7 @@
     </header>
 
     <main class="container">
+
         <div class="controls">
             <div class="dropdown-group">
                 <label><i class="fas fa-users" style="margin-right: 8px;"></i>Category</label>
@@ -27,6 +30,7 @@
                     <option value="college">🎓 Advanced Thinkers</option>
                 </select>
             </div>
+
             <div class="dropdown-group">
                 <label><i class="fas fa-user-graduate" style="margin-right: 8px;"></i>Class / Level</label>
                 <select id="classSelect"></select>
@@ -40,23 +44,34 @@
                     <i class="fas fa-expand-alt"></i>
                 </button>
             </div>
+
             <textarea id="studentNotes" placeholder="Paste your notes here..."></textarea>
         </div>
 
         <div class="button-grid">
-            <button id="btnSimplify" class="btn btn-teal">Simplify Notes</button>
-            <button id="btnQuestions" class="btn btn-orange">Generate Questions</button>
+            <button id="btnSimplify" class="btn btn-teal">
+                Simplify Notes
+            </button>
+
+            <button id="btnQuestions" class="btn btn-orange">
+                Generate Questions
+            </button>
         </div>
 
         <div class="result-wrapper">
             <div class="box-header">
                 <span><i class="fas fa-magic"></i> AI Generated Result</span>
-                <button id="btnCopy" class="btn-copy"><i class="fas fa-copy"></i> Copy</button>
+
+                <button id="btnCopy" class="btn-copy">
+                    <i class="fas fa-copy"></i> Copy
+                </button>
             </div>
+
             <div id="resultBox" class="scrollable-box">
                 <p class="placeholder-text">Output will appear here...</p>
             </div>
         </div>
+
     </main>
 
     <div id="previewModal" class="modal">
@@ -65,6 +80,7 @@
                 <h3><i class="fas fa-eye"></i> Notes Preview</h3>
                 <span id="closeModal" class="close">&times;</span>
             </div>
+
             <textarea id="modalText" class="modal-textarea"></textarea>
         </div>
     </div>
@@ -82,14 +98,21 @@
             <span class="close-contact" onclick="document.getElementById('contactBox').style.display='none'">&times;</span>
             <h2>Get in Touch</h2>
             <p>Have an idea or facing an issue? Send us a direct message and we'll help you out.</p>
-            <div class="form-group"><input type="email" id="userEmail" placeholder="Your email address" class="contact-input"></div>
-            <div class="form-group"><textarea id="userMessage" placeholder="How can we help you?" class="contact-textarea"></textarea></div>
+            
+            <div class="form-group">
+                <input type="email" id="userEmail" placeholder="Your email address" class="contact-input">
+            </div>
+            <div class="form-group">
+                <textarea id="userMessage" placeholder="How can we help you?" class="contact-textarea"></textarea>
+            </div>
+
             <div class="send-container">
                 <button onclick="handleSend()" class="send-icon-btn">
                     <span style="font-size: 13px; font-family: 'Plus Jakarta Sans';">Send Message</span>
                     <i class="fas fa-paper-plane"></i>
                 </button>
             </div>
+
             <p class="contact-email">novabyte888@gmail.com</p>
         </div>
     </div>
