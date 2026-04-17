@@ -14,13 +14,13 @@ export default async function handler(req, res) {
     const transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
-            user: "novabyte888@gmail.com",
-            pass: "znqblyduziueqdwt",
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS,
         },
     });
 
     const mailOptions = {
-        from: "novabyte888@gmail.com",
+        from: process.env.EMAIL_USER,
         to: "novabyte888@gmail.com",
         subject: `New Contact from ${email}`,
         text: `From: ${email}\n\nMessage:\n${message}`,
