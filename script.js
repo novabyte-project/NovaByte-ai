@@ -37,7 +37,6 @@ let isLoading = false;
 
 // ---------- API CALL ----------
 async function getAIResponse(message, feature, category) {
-    // 🌐 INTERNET CHECK BEFORE FETCH
     if (!navigator.onLine) {
         return "NETWORK_OFFLINE";
     }
@@ -64,12 +63,15 @@ async function getAIResponse(message, feature, category) {
     }
 }
 
-// ---------- SHARED NETWORK ERROR UI (OPTION 1) ----------
-function showNetworkError() {
+// ---------- DYNAMIC NETWORK ERROR (OPTION 1 WITH EMOJI) ----------
+function showNetworkError(type) {
+    // Simplify (notes) = Teal | Questions = Orange
+    const activeColor = (type === 'notes') ? '#0d9488' : '#ea580c';
+    
     result.innerHTML = `
-        <div style="color:#ea580c; padding:15px; border:1px solid #ea580c; border-radius:12px; background: rgba(234, 88, 12, 0.05); text-align:center;">
-            <h4 style="margin-bottom:8px; display:flex; align-items:center; justify-content:center; gap:10px;">
-                <i class="fas fa-wifi-slash"></i> Connection Lost
+        <div style="color:${activeColor}; padding:15px; border:1px solid ${activeColor}; border-radius:12px; background: rgba(0, 0, 0, 0.1); text-align:center;">
+            <h4 style="margin-bottom:8px; display:flex; align-items:center; justify-content:center; gap:10px; color:${activeColor};">
+                ⚠️ Connection Lost
             </h4>
             <p style="font-size:13px; color:var(--text-dim); line-height:1.5;">
                 Please check your internet settings to continue with NovaByte AI.
@@ -107,24 +109,17 @@ document.getElementById('btnSimplify').onclick = async () => {
     if (isLoading) return;
     if (!notes.value.trim()) return alert("Please enter notes!");
 
-    // 🧹 Purana kachra saaf karo
     result.innerHTML = ''; 
     isLoading = true;
     result.innerText = "Simplifying... ⏳";
 
     const categoryValue = mapClassToCategory(classList.value);
-
-    const output = await getAIResponse(
-        notes.value,
-        "notes",
-        categoryValue
-    );
+    const output = await getAIResponse(notes.value, "notes", categoryValue);
 
     isLoading = false;
 
-    // 🌐 OFFLINE HANDLING
     if (output === "NETWORK_OFFLINE") {
-        showNetworkError();
+        showNetworkError('notes');
         return;
     }
 
@@ -139,24 +134,17 @@ document.getElementById('btnQuestions').onclick = async () => {
     if (isLoading) return;
     if (!notes.value.trim()) return alert("Please enter notes!");
 
-    // 🧹 Purana kachra saaf karo
     result.innerHTML = ''; 
     isLoading = true;
     result.innerText = "Generating questions... ⏳";
 
     const categoryValue = mapClassToCategory(classList.value);
-
-    const output = await getAIResponse(
-        notes.value,
-        "questions",
-        categoryValue
-    );
+    const output = await getAIResponse(notes.value, "questions", categoryValue);
 
     isLoading = false;
 
-    // 🌐 OFFLINE HANDLING
     if (output === "NETWORK_OFFLINE") {
-        showNetworkError();
+        showNetworkError('questions');
         return;
     }
 
@@ -182,41 +170,31 @@ function handleSend() {
 
     const email = document.getElementById('userEmail').value;
     const message = document.getElementById('userMessage').value;
-
     const btn = document.querySelector('.send-icon-btn');
+    
     btn.innerHTML = '<span style="font-size: 13px;">Sending...</span>';
 
     fetch("/api/contact", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            email: email,
-            message: message
-        })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email, message: message })
     })
     .then(res => res.json())
     .then(data => {
         btn.innerHTML = '<span style="font-size: 13px;">Sent!</span> <i class="fas fa-check"></i>';
-
         setTimeout(() => {
             document.getElementById('contactBox').style.display = 'none';
             btn.innerHTML = '<span style="font-size: 13px;">Send Message</span> <i class="fas fa-paper-plane"></i>';
         }, 1500);
-
         alert(data.message);
     })
     .catch(err => {
         alert("Error sending message. Check connection.");
-        console.log(err);
         btn.innerHTML = '<span style="font-size: 13px;">Send Message</span> <i class="fas fa-paper-plane"></i>';
     });
 }
 
 window.onclick = function(event) {
     var modal = document.getElementById('contactBox');
-    if (event.target == modal) { 
-        modal.style.display = 'none'; 
-    }
+    if (event.target == modal) { modal.style.display = 'none'; }
 }
