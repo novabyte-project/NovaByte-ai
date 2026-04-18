@@ -228,7 +228,7 @@ document.getElementById('btnCopy').onclick = () => {
 // ===== FOOTER CONTACT JS =====
 function handleSend() {
     if (!navigator.onLine) {
-        showToast("Connection Lost: Check internet settings.", "fas fa-wifi", "#e11d48");
+        showToast("Connection Lost: Check internet.", "fas fa-wifi", "#e11d48");
         return;
     }
 
