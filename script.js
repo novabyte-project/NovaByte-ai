@@ -90,6 +90,34 @@ function showToast(message, icon, color) {
     }, 3000);
 }
 
+// ---------- LOADER SYSTEM ----------
+function showLoader(type) {
+    const color = (type === 'notes') ? '#0d9488' : '#ea580c';
+    const text = (type === 'notes') ? 'Analyzing Notes...' : 'Crafting Questions...';
+    const rgbColor = (type === 'notes') ? '13, 148, 136' : '234, 88, 12';
+
+    result.innerHTML = `
+        <div style="display:flex; flex-direction:column; align-items:center; gap:15px;">
+            <div style="
+                width:35px; height:35px;
+                border-radius:50%;
+                border: 3px solid rgba(${rgbColor}, 0.1);
+                border-top: 3px solid ${color};
+                box-shadow: 0 0 15px rgba(${rgbColor}, 0.2);
+                animation: nb-spin 0.8s linear infinite;
+            "></div>
+            <div style="
+                font-size:11px; font-weight:700; color:${color};
+                letter-spacing:2px; text-transform:uppercase;
+                font-family: 'Plus Jakarta Sans', sans-serif;
+            ">${text}</div>
+        </div>
+        <style>
+            @keyframes nb-spin { to { transform: rotate(360deg); } }
+        </style>
+    `;
+}
+
 // ---------- API CALL ----------
 async function getAIResponse(message, feature, category) {
     if (!navigator.onLine) {
@@ -170,9 +198,9 @@ document.getElementById('btnSimplify').onclick = async () => {
         return;
     }
 
-    result.innerHTML = ''; 
+    result.innerHTML = '';
     isLoading = true;
-    result.innerText = "Simplifying... ⏳";
+    showLoader('notes');
 
     const categoryValue = mapClassToCategory(classList.value);
     const output = await getAIResponse(notes.value, "notes", categoryValue);
@@ -198,9 +226,9 @@ document.getElementById('btnQuestions').onclick = async () => {
         return;
     }
 
-    result.innerHTML = ''; 
+    result.innerHTML = '';
     isLoading = true;
-    result.innerText = "Generating questions... ⏳";
+    showLoader('questions');
 
     const categoryValue = mapClassToCategory(classList.value);
     const output = await getAIResponse(notes.value, "questions", categoryValue);
