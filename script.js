@@ -97,7 +97,7 @@ function showLoader(type) {
     const rgbColor = (type === 'notes') ? '13, 148, 136' : '234, 88, 12';
 
     result.innerHTML = `
-        <div style="display:flex; flex-direction:column; align-items:center; gap:15px;">
+        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; gap:15px;">
             <div style="
                 width:35px; height:35px;
                 border-radius:50%;
@@ -148,7 +148,6 @@ async function getAIResponse(message, feature, category) {
 
 // ---------- DYNAMIC NETWORK ERROR (OPTION 1 WITH EMOJI) ----------
 function showNetworkError(type) {
-    // Simplify (notes) = Teal | Questions = Orange
     const activeColor = (type === 'notes') ? '#0d9488' : '#ea580c';
     
     result.innerHTML = `
