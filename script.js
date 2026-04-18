@@ -97,7 +97,7 @@ function showLoader(type) {
     const rgbColor = (type === 'notes') ? '13, 148, 136' : '234, 88, 12';
 
     result.innerHTML = `
-        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; gap:15px;">
+        <div style="display:flex; flex-direction:column; align-items:center; justify-content:flex-start; padding-top:60px; height:100%; gap:15px;">
             <div style="
                 width:35px; height:35px;
                 border-radius:50%;
