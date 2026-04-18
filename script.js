@@ -35,6 +35,61 @@ const modalText = document.getElementById('modalText');
 // ---------- LOADING LOCK ----------
 let isLoading = false;
 
+// ---------- TOAST SYSTEM ----------
+function showToast(message, icon, color) {
+    const existing = document.getElementById('nb-toast');
+    if (existing) existing.remove();
+
+    const toast = document.createElement('div');
+    toast.id = 'nb-toast';
+    toast.innerHTML = `<i class="${icon}"></i><span>${message}</span>`;
+
+    toast.style.cssText = `
+        position: fixed;
+        top: 24px;
+        left: 50%;
+        transform: translateX(-50%) translateY(-80px);
+        background: #11141d;
+        color: #ffffff;
+        padding: 14px 22px;
+        border-radius: 12px;
+        border: 1px solid ${color};
+        box-shadow: 0 0 20px rgba(0,0,0,0.5), 0 0 10px ${color}44;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 14px;
+        font-weight: 600;
+        z-index: 99999;
+        transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+        opacity: 0;
+        white-space: nowrap;
+        max-width: 90vw;
+    `;
+
+    toast.querySelector('i').style.cssText = `
+        color: ${color};
+        font-size: 16px;
+        flex-shrink: 0;
+    `;
+
+    document.body.appendChild(toast);
+
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            toast.style.transform = 'translateX(-50%) translateY(0)';
+            toast.style.opacity = '1';
+        });
+    });
+
+    setTimeout(() => {
+        toast.style.transform = 'translateX(-50%) translateY(-80px)';
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 350);
+    }, 3000);
+}
+
 // ---------- API CALL ----------
 async function getAIResponse(message, feature, category) {
     if (!navigator.onLine) {
@@ -93,7 +148,10 @@ window.onload = refreshClasses;
 
 // ---------- PREVIEW ----------
 document.getElementById('previewBtn').onclick = () => {
-    if (!notes.value.trim()) return alert("Please paste some notes first!");
+    if (!notes.value.trim()) {
+        showToast("Please paste some notes first!", "fas fa-exclamation-triangle", "#e11d48");
+        return;
+    }
 
     modalText.value = notes.value;
     modal.style.display = "block";
@@ -107,7 +165,10 @@ document.getElementById('closeModal').onclick = () => {
 // ---------- SIMPLIFY ----------
 document.getElementById('btnSimplify').onclick = async () => {
     if (isLoading) return;
-    if (!notes.value.trim()) return alert("Please enter notes!");
+    if (!notes.value.trim()) {
+        showToast("Please enter notes!", "fas fa-exclamation-circle", "#0d9488");
+        return;
+    }
 
     result.innerHTML = ''; 
     isLoading = true;
@@ -132,7 +193,10 @@ document.getElementById('btnSimplify').onclick = async () => {
 // ---------- QUESTIONS ----------
 document.getElementById('btnQuestions').onclick = async () => {
     if (isLoading) return;
-    if (!notes.value.trim()) return alert("Please enter notes!");
+    if (!notes.value.trim()) {
+        showToast("Please enter notes!", "fas fa-question-circle", "#ea580c");
+        return;
+    }
 
     result.innerHTML = ''; 
     isLoading = true;
@@ -158,13 +222,13 @@ document.getElementById('btnQuestions').onclick = async () => {
 document.getElementById('btnCopy').onclick = () => {
     const text = result.querySelector("pre")?.innerText || result.innerText;
     navigator.clipboard.writeText(text);
-    alert("Copied!");
+    showToast("Copied to Clipboard!", "fas fa-check-double", "#00F5FF");
 };
 
 // ===== FOOTER CONTACT JS =====
 function handleSend() {
     if (!navigator.onLine) {
-        alert("Connection Lost: Please check your internet settings.");
+        showToast("Connection Lost: Check internet settings.", "fas fa-wifi", "#e11d48");
         return;
     }
 
@@ -186,10 +250,10 @@ function handleSend() {
             document.getElementById('contactBox').style.display = 'none';
             btn.innerHTML = '<span style="font-size: 13px;">Send Message</span> <i class="fas fa-paper-plane"></i>';
         }, 1500);
-        alert(data.message);
+        showToast("Message Sent Successfully!", "fas fa-paper-plane", "#0d9488");
     })
     .catch(err => {
-        alert("Error sending message. Check connection.");
+        showToast("Error sending message. Check connection.", "fas fa-server", "#e11d48");
         btn.innerHTML = '<span style="font-size: 13px;">Send Message</span> <i class="fas fa-paper-plane"></i>';
     });
 }
