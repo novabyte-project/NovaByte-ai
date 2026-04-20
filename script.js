@@ -118,6 +118,29 @@ function showLoader(type) {
     `;
 }
 
+// ---------- MARKDOWN FORMATTER ----------
+function formatOutput(text, type) {
+    const accentColor = (type === 'notes') ? '#0d9488' : '#ea580c';
+    const accentRgb = (type === 'notes') ? '13,148,136' : '234,88,12';
+
+    let html = text
+        // Bold
+        .replace(/\*\*(.*?)\*\*/g, '<strong style="color:white;font-weight:700;">$1</strong>')
+        // Headings ## and ###
+        .replace(/^### (.*$)/gm, `<div style="color:white;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:1px;margin:16px 0 8px 0;opacity:0.6;">$1</div>`)
+        .replace(/^## (.*$)/gm, `<div style="color:white;font-weight:800;font-size:14px;margin:18px 0 10px 0;border-bottom:1px solid rgba(${accentRgb},0.2);padding-bottom:6px;">$1</div>`)
+        .replace(/^# (.*$)/gm, `<div style="color:${accentColor};font-weight:800;font-size:15px;margin:18px 0 10px 0;border-bottom:1px solid rgba(${accentRgb},0.3);padding-bottom:8px;">$1</div>`)
+        // Bullet points
+        .replace(/^[-*] (.*$)/gm, `<div style="display:flex;gap:10px;margin:5px 0;"><span style="color:${accentColor};font-size:12px;margin-top:4px;flex-shrink:0;">▸</span><span style="color:#c8d6e5;line-height:1.7;">$1</span></div>`)
+        // Numbered lists
+        .replace(/^(\d+)\. (.*$)/gm, `<div style="display:flex;gap:10px;align-items:flex-start;margin:8px 0;"><span style="display:inline-flex;width:22px;height:22px;border-radius:50%;background:rgba(${accentRgb},0.15);border:1px solid rgba(${accentRgb},0.3);color:${accentColor};font-size:11px;font-weight:800;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;">$1</span><span style="color:#c8d6e5;line-height:1.7;">$2</span></div>`)
+        // Line breaks
+        .replace(/\n\n/g, '</p><p style="margin:0 0 12px 0;color:#c8d6e5;line-height:1.8;">')
+        .replace(/\n/g, '<br>');
+
+    return `<div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;line-height:1.8;color:#c8d6e5;"><p style="margin:0 0 12px 0;color:#c8d6e5;line-height:1.8;">${html}</p></div>`;
+}
+
 // ---------- API CALL ----------
 async function getAIResponse(message, feature, category) {
     if (!navigator.onLine) {
@@ -212,8 +235,8 @@ document.getElementById('btnSimplify').onclick = async () => {
     }
 
     result.innerHTML = `
-        <h3 style="color:var(--teal); margin-bottom:10px;">Simplified by Novabyte AI</h3>
-        <pre style="white-space:pre-wrap">${output}</pre>
+        <h3 style="color:var(--teal); margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid rgba(13,148,136,0.2); font-family:'Plus Jakarta Sans',sans-serif;">Simplified by Novabyte AI</h3>
+        ${formatOutput(output, 'notes')}
     `;
 };
 
@@ -240,8 +263,8 @@ document.getElementById('btnQuestions').onclick = async () => {
     }
 
     result.innerHTML = `
-        <h3 style="color:var(--orange); margin-bottom:10px;">AI Generated Questions</h3>
-        <pre style="white-space:pre-wrap">${output}</pre>
+        <h3 style="color:var(--orange); margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid rgba(234,88,12,0.2); font-family:'Plus Jakarta Sans',sans-serif;">AI Generated Questions</h3>
+        ${formatOutput(output, 'questions')}
     `;
 };
 
