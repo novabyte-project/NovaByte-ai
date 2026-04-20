@@ -123,6 +123,21 @@ textarea {
     font-size: 1.05rem; 
 }
 
+/* ===== TEXTAREA SCROLLBAR — MINIMAL GRAY ===== */
+textarea::-webkit-scrollbar {
+    width: 5px;
+}
+textarea::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.02);
+}
+textarea::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+}
+textarea::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.4);
+}
+
 /* RESULT BOX */
 .scrollable-box { 
     height: 250px; 
@@ -252,6 +267,21 @@ textarea {
     resize: none; 
     outline: none; 
     overflow-y: auto; 
+}
+
+/* ===== MODAL TEXTAREA SCROLLBAR — MINIMAL GRAY ===== */
+.modal-textarea::-webkit-scrollbar {
+    width: 5px;
+}
+.modal-textarea::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.02);
+}
+.modal-textarea::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+}
+.modal-textarea::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.4);
 }
 
 /* 🔥 IMPORTANT: MOBILE FIX (SIDE BY SIDE HI RAHE) */
